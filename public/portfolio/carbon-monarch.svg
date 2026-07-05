@@ -1,0 +1,27 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="900" fill="#080808"/>
+  <rect x="86" y="70" width="1428" height="760" rx="42" fill="#101010" stroke="rgba(255,255,255,0.14)" stroke-width="2"/>
+  <rect x="138" y="122" width="1324" height="76" rx="24" fill="rgba(255,255,255,0.055)" stroke="rgba(255,255,255,0.08)"/>
+  <circle cx="174" cy="160" r="9" fill="#D4AF37"/>
+  <text x="206" y="169" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="900" letter-spacing="7">CARBON MONARCH</text>
+  <rect x="1062" y="142" width="92" height="16" rx="8" fill="rgba(255,255,255,0.22)"/>
+  <rect x="1192" y="142" width="92" height="16" rx="8" fill="rgba(255,255,255,0.22)"/>
+  <rect x="1322" y="136" width="96" height="28" rx="14" fill="#D4AF37"/>
+  <circle cx="1228" cy="390" r="310" fill="#D4AF37" fill-opacity="0.13"/>
+  <circle cx="402" cy="662" r="270" fill="#3B82F6" fill-opacity="0.08"/>
+  <text x="160" y="334" fill="#D4AF37" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800" letter-spacing="8">LUXURY STREETWEAR</text>
+  <text x="158" y="438" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="92" font-weight="900">Carbon Monarch</text>
+  <text x="164" y="500" fill="#BDBDBD" font-family="Inter, Arial, sans-serif" font-size="30">Premium apparel, refined product displays, and a modern shopping flow.</text>
+  <rect x="164" y="568" width="210" height="62" rx="31" fill="#D4AF37"/>
+  <text x="214" y="608" fill="#0A0A0A" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="900">Shop Now</text>
+  <rect x="836" y="276" width="242" height="380" rx="28" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.12)"/>
+  <rect x="1106" y="244" width="296" height="456" rx="32" fill="rgba(255,255,255,0.1)" stroke="rgba(212,175,55,0.3)"/>
+  <rect x="864" y="322" width="186" height="198" rx="22" fill="#161616"/>
+  <rect x="1146" y="300" width="216" height="252" rx="24" fill="#161616"/>
+  <path d="M941 350H976L1010 506H908L941 350Z" fill="#D4AF37" fill-opacity="0.82"/>
+  <path d="M1210 334H1298L1330 528H1178L1210 334Z" fill="#D4AF37" fill-opacity="0.75"/>
+  <rect x="876" y="552" width="162" height="14" rx="7" fill="rgba(255,255,255,0.28)"/>
+  <rect x="904" y="584" width="106" height="14" rx="7" fill="rgba(212,175,55,0.75)"/>
+  <rect x="1166" y="586" width="176" height="16" rx="8" fill="rgba(255,255,255,0.3)"/>
+  <rect x="1200" y="624" width="108" height="16" rx="8" fill="rgba(212,175,55,0.78)"/>
+</svg>

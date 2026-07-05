@@ -1,0 +1,19 @@
+<svg width="376" height="104" viewBox="0 0 376 104" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="376" height="104" fill="transparent"/>
+  <g>
+    <rect x="8" y="8" width="88" height="88" rx="24" fill="#0A0A0A"/>
+    <path d="M52 18L82 35.5V68.5L52 86L22 68.5V35.5L52 18Z" stroke="#D4AF37" stroke-width="3"/>
+    <path d="M52 30L70.5 67H63L59.5 59.5H44.5L41 67H33.5L52 30Z" fill="#FFFFFF"/>
+    <path d="M47.4 53H56.6L52 43.1L47.4 53Z" fill="#D4AF37"/>
+    <path d="M35 72L52 30L69 72" stroke="#D4AF37" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <text x="118" y="50" fill="#FFFFFF" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="900" letter-spacing="8">APEX</text>
+  <text x="118" y="78" fill="#D4AF37" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="9">WEB</text>
+  <path d="M118 88H286" stroke="url(#goldLine)" stroke-width="1.5"/>
+  <defs>
+    <linearGradient id="goldLine" x1="118" y1="88" x2="286" y2="88" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D4AF37"/>
+      <stop offset="1" stop-color="#D4AF37" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+</svg>
