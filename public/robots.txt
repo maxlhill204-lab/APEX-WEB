@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Sitemap: https://apexweb.com.au/sitemap.xml
+Sitemap: https://apex-web-beta.vercel.app/sitemap.xml

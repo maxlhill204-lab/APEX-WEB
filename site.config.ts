@@ -1,6 +1,6 @@
 export const site = {
   name: "APEXWEB",
-  url: "https://apexweb.com.au",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://apex-web-beta.vercel.app",
   email: "apexweb.au@gmail.com",
   instagram: "https://www.instagram.com/apexweb.au/",
   facebook: "https://www.facebook.com/profile.php?id=61591306250659",

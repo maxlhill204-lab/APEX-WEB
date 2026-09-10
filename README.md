@@ -45,9 +45,9 @@ The site emits `apexweb:analytics` CustomEvents for quote clicks, package select
 
 ## Deployment
 
-Linked project: `apex-web` in `maxlhill204-labs-projects`. Existing domain: `apexweb.com.au`. Do not change DNS or the project binding. `vercel deploy --prod` deploys the site. Run commands from this repository. If a newly released CLI gives a scope error, the verified CLI for this build is `npx vercel@59.14.0` with the existing `.vercel/project.json` link and no scope override.
+Linked project: `apex-web` in `maxlhill204-labs-projects`. Existing domain: `apexweb.com.au` is bound in Vercel but currently points to a third-party parking provider. The working public site is `https://apex-web-beta.vercel.app`. Vercel reports the required apex A record as `76.76.21.21`; correct it at the existing DNS provider after checking domain ownership. No DNS records were changed. After DNS/TLS verification, set `NEXT_PUBLIC_SITE_URL=https://apexweb.com.au`, update sitemap/robots URLs and redeploy. Preserve the project binding. `vercel deploy --prod` deploys the site. Run commands from this repository. If a newly released CLI gives a scope error, the verified CLI for this build is `npx vercel@59.14.0` with the existing `.vercel/project.json` link and no scope override.
 
-Preserve the GitHub source as well as the Vercel deployment to prevent future deployments of the old design. This work lives on the `codex/apexweb-complete-rebuild` branch for review.
+Preserve the GitHub source as well as the Vercel deployment to prevent future deployments of the old design. The finished source is pushed to `main`, with a matching `codex/apexweb-complete-rebuild` branch retained.
 
 ## Tests and limits
 
