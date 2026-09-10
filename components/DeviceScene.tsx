@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import * as T from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
-import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { Reflector } from "three/addons/objects/Reflector.js";
 type Props = {
   progress: React.RefObject<number>;
@@ -35,20 +34,42 @@ export default function DeviceScene({
       onFailure();
       return;
     }
+    renderer.debug.checkShaderErrors = process.env.NODE_ENV !== "production";
     renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
     renderer.outputColorSpace = T.SRGBColorSpace;
     renderer.toneMapping = T.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.2;
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = T.PCFSoftShadowMap;
+    renderer.shadowMap.type = T.BasicShadowMap;
     root.appendChild(renderer.domElement);
     let disposed = false,
       dirty = true,
       visible = true;
     let assetsReady = false;
     const manager = new T.LoadingManager(() => {
-      assetsReady = true;
-      dirty = true;
+      if (disposed) return;
+      const prepare = async () => {
+        // Offscreen reflections use a different colour pipeline from the viewport.
+        // Compile both variants before drawing, otherwise the first reflection stalls.
+        renderer.setRenderTarget(reflection.getRenderTarget());
+        await renderer.compileAsync(studio, camera);
+        if (disposed) return;
+        renderer.setRenderTarget(null);
+        await renderer.compileAsync(studio, camera);
+        if (disposed) return;
+        renderer.setRenderTarget(displayTarget);
+        await renderer.compileAsync(universe, screenCamera);
+        if (disposed) return;
+        renderer.setRenderTarget(null);
+        await renderer.compileAsync(universe, spaceCamera);
+        if (!disposed) {
+          assetsReady = true;
+          dirty = true;
+        }
+      };
+      void prepare().catch(() => {
+        if (!disposed) onFailure();
+      });
     });
     const textures: T.Texture[] = [],
       loader = new T.TextureLoader(manager);
@@ -71,11 +92,41 @@ export default function DeviceScene({
     studio.background = new T.Color("#171c20");
     studio.fog = new T.Fog("#171c20", 18, 45);
     const camera = new T.PerspectiveCamera(38, 1, 0.025, 120);
-    const pmrem = new T.PMREMGenerator(renderer),
-      room = new RoomEnvironment();
-    const environment = pmrem.fromScene(room, 0.04, 0.1, 100, { size: 64 });
-    room.dispose();
-    studio.environment = environment.texture;
+    // Precomputed from Three.js RoomEnvironment. Loading the filtered radiance map
+    // avoids generating and compiling an entire environment on the visitor's phone.
+    let environment: T.DataTexture | undefined;
+    const environmentAbort = new AbortController();
+    const environmentURL = "/cinematic/studio-environment.bin.gz";
+    manager.itemStart(environmentURL);
+    fetch(environmentURL, { signal: environmentAbort.signal })
+      .then(async (response) => {
+        if (!response.ok || !response.body)
+          throw new Error("Environment unavailable");
+        const stream = response.body.pipeThrough(
+          new DecompressionStream("gzip"),
+        );
+        const buffer = await new Response(stream).arrayBuffer();
+        if (disposed) return;
+        environment = new T.DataTexture(
+          new Uint16Array(buffer),
+          336,
+          256,
+          T.RGBAFormat,
+          T.HalfFloatType,
+        );
+        environment.mapping = T.CubeUVReflectionMapping;
+        environment.minFilter = environment.magFilter = T.LinearFilter;
+        environment.colorSpace = T.LinearSRGBColorSpace;
+        environment.needsUpdate = true;
+        studio.environment = environment;
+      })
+      .catch(() => {
+        if (!disposed) onFailure();
+      })
+      .finally(() => {
+        dirty = true;
+        manager.itemEnd(environmentURL);
+      });
     studio.add(new T.AmbientLight(0xb9cad9, 0.6));
     const key = new T.DirectionalLight(0xffe7ce, 3.2);
     key.position.set(-4, 7, 3);
@@ -111,7 +162,7 @@ export default function DeviceScene({
         material,
       );
       mesh.castShadow = true;
-      mesh.receiveShadow = true;
+      mesh.receiveShadow = false;
       return mesh;
     };
     const laptop = new T.Group();
@@ -433,7 +484,7 @@ export default function DeviceScene({
     const render = () => {
       if (disposed) return;
       frame = requestAnimationFrame(render);
-      if (!visible || document.hidden) return;
+      if (!assetsReady || !visible || document.hidden) return;
       current =
         Math.abs(progress.current - current) < 0.001
           ? progress.current
@@ -590,8 +641,8 @@ export default function DeviceScene({
       textures.forEach((t) => t.dispose());
       reflection.dispose();
       displayTarget.dispose();
-      environment.dispose();
-      pmrem.dispose();
+      environmentAbort.abort();
+      environment?.dispose();
       renderer.dispose();
       renderer.domElement.remove();
     };

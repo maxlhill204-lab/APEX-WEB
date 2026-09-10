@@ -2387,8 +2387,7 @@ body {
 .cinema-poster img {
   object-fit: cover;
 }
-.cinema-ready:not(.cinema-static) .cinema-poster {
-  opacity: 0;
+.cinema-poster {
   pointer-events: none;
 }
 .cinema-stage {
