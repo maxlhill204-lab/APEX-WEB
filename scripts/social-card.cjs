@@ -1,0 +1,3 @@
+const sharp=require('sharp');
+const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630"><rect width="1200" height="630" fill="#0b0b0b"/><text x="80" y="95" font-family="Arial" font-size="28" fill="#eee" letter-spacing="2">APEXWEB</text><path d="M80 130H1120" stroke="#333"/><text x="80" y="265" font-family="Arial" font-size="83" fill="#eee">Your business.</text><text x="80" y="360" font-family="Arial" font-size="83" fill="#eee">At its best.</text><text x="80" y="455" font-family="Arial" font-size="83" fill="#999">Online.</text><text x="80" y="555" font-family="Arial" font-size="25" fill="#aaa">Custom websites. Clear pricing. No-obligation quotes.</text></svg>`;
+sharp(Buffer.from(svg)).png().toFile('public/social-card.png');

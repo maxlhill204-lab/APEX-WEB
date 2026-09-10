@@ -1,80 +1,56 @@
-# APEX WEB
+# APEXWEB
 
-Next.js website for APEX WEB with a Firestore-backed enquiry form.
+Custom business website, rebuilt in the existing Next.js Pages Router repository. The original Vercel project, domain, prices, demo assets and Firebase enquiry collection are retained.
 
-## Run Locally
+## Work locally
 
-```bash
-npm install
-npm run dev
-```
+Requires Node.js 24 and npm.
 
-Open `http://localhost:3000` in your browser.
+- `npm ci`
+- `npm run dev`
+- `npm run lint`
+- `npm run typecheck`
+- `npm test`
+- `npm run build`
 
-This is a Next.js project, so it will not work by opening `index.html` directly. Use `open-local.html` if you want a simple local reminder page.
+Use `.env.example` for local configuration. Production Firebase environment variables already exist in Vercel and are sensitive; Vercel will not export their values. Do not replace them with the `[SENSITIVE]` strings produced by an environment pull.
 
-## Firebase Setup
+## Business configuration
 
-The contact form saves enquiries to Cloud Firestore in a collection named `enquiries`.
+Edit `site.config.ts` for contact email, Instagram, website URL, package prices and inclusions, care plans and FAQs. Current prices are copied from the existing repository, not invented: builds $300/$550/$850 AUD and optional care $39/$79/$149 per month. Final scope and price are agreed in a quote.
 
-1. Go to [Firebase Console](https://console.firebase.google.com/) and create or open your project.
-2. Open **Build > Firestore Database**.
-3. Click **Create database**.
-4. Choose **Production mode**.
-5. Pick the nearest Firestore location for your audience.
-6. Open **Project settings > General**.
-7. Under **Your apps**, add a Web app if one does not exist.
-8. Copy the Firebase web app config values into a new `.env.local` file using `.env.example` as the template.
-9. Restart `npm run dev` after changing `.env.local`.
+## Interactive showcase
 
-Example `.env.local`:
+`ImmersiveShowcase.tsx` coordinates four scroll chapters. `DeviceScene.tsx` dynamically loads a real Three.js laptop and phone model, rendered with rounded geometry, metallic materials and the existing demo website textures. Scroll changes rotation and composition; buttons and mouse dragging allow manual rotation. Pause stops ambient animation. Reduced-motion users and browsers without WebGL see a static website preview. Rendering pauses when the scene is offscreen or the tab is hidden, uses capped pixel density and a maximum of 45 frames per second, and disposes graphics resources on navigation.
 
-```bash
-NEXT_PUBLIC_FIREBASE_API_KEY=...
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
-NEXT_PUBLIC_FIREBASE_APP_ID=...
-```
+## Quote delivery
 
-## Firestore Rules
+`/quote?package=business&source=outreach` preselects a package and preserves attribution. `/contact` retains the existing route and runs the same wizard. Five steps cover package, business, requirements/style/timing, contact and review. Back/edit preserve answers. Validation occurs in the browser and again on the server. Failed requests retain all answers. Submission has a synchronous duplicate lock and a deterministic document ID for retries.
 
-For the enquiry form to work from the public website, allow visitors to create enquiry documents. Start with rules like this, then tighten them further with App Check or a server-side API when the site is live.
+`POST /api/quote` validates content type, origin, allowed options, field types and lengths, consent and a honeypot. In-memory IP rate limiting is a best-effort safeguard per server instance; it is not a global distributed quota. For higher traffic, add shared rate limiting or a challenge provider. No user contact details are sent to analytics.
 
-```js
-rules_version = '2';
+The existing Firebase rules permit a restricted, create-only document schema. The integration deliberately retains the seven existing fields: name, business, email, phone, message, source and createdAt. The complete quote appears as a readable summary and a structured JSON record within `message`. This preserves all the new fields without loosening database access. Enquiries are available in the existing Firebase Console under **Firestore Database → Data → enquiries**. A retry targets the same document ID.
 
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /enquiries/{enquiryId} {
-      allow create: if request.resource.data.keys().hasOnly([
-        'name',
-        'business',
-        'email',
-        'phone',
-        'message',
-        'source',
-        'createdAt'
-      ])
-      && request.resource.data.name is string
-      && request.resource.data.email is string
-      && request.resource.data.message is string
-      && request.resource.data.name.size() > 1
-      && request.resource.data.email.size() > 5
-      && request.resource.data.message.size() > 5;
+The API reports success only when Firebase has accepted the enquiry or the business notification email has been accepted by the provider. It does not claim an email was sent when email is not configured. No confirmation is sent to a customer unless the business notification was accepted first.
 
-      allow read, update, delete: if false;
-    }
-  }
-}
-```
+## Email activation — remaining configuration
 
-To view enquiries, open **Firestore Database > Data > enquiries** in Firebase.
+The server-side Resend integration and both HTML/plain-text email templates are complete. **RESEND_API_KEY is absent from the existing Vercel project.** Set this as a sensitive server environment variable for Production and Preview after creating or connecting a Resend sending account. The default sender is `APEXWEB <enquiries@apexweb.com.au>`; verify the sender domain in Resend first, or set `EMAIL_FROM` to an already verified sender. Redeploy and test delivery to both business and customer inboxes. API acceptance and actual inbox delivery are separate checks. No email delivery is currently certified.
 
-## Checks
+Email requests use Resend idempotency keys, escaped HTML, plain-text alternatives, request timeouts, and Reply-To addresses. Secret API keys never enter client bundles.
 
-```bash
-npm run lint
-npm run build
-```
+## Analytics and future lead acquisition
+
+The site emits `apexweb:analytics` CustomEvents for quote clicks, package selection, quote starts/completions, email and Instagram clicks. No external analytics provider is enabled. Integrate an approved first-party adapter with this event if needed. Campaign source/UTM values are held in session storage and added to the enquiry. There is no outbound sending or prospect scraping system. `Lead` provides a typed boundary for a future CRM or campaign workflow.
+
+## Deployment
+
+Linked project: `apex-web` in `maxlhill204-labs-projects`. Existing domain: `apexweb.com.au`. Do not change DNS or the project binding. `vercel deploy --prod` deploys the site. Run commands from this repository. If a newly released CLI gives a scope error, the verified CLI for this build is `npx vercel@59.14.0` with the existing `.vercel/project.json` link and no scope override.
+
+Preserve the GitHub source as well as the Vercel deployment to prevent future deployments of the old design. This work lives on the `codex/apexweb-complete-rebuild` branch for review.
+
+## Tests and limits
+
+`npm test` covers lead validation, HTML escaping, request guards, storage failure, successful acceptance and retry identity. Those tests mock external services. `tests/browser-qa.cjs` attaches to an agent-browser Chromium session; set `CDP_URL` to the current endpoint. It tests nine widths, accessibility, menu, model controls, package links, wizard validation/back/review, and explicitly mocked success/failure states. Real server delivery is checked separately against Vercel. Browser screenshots and the handover report live outside the source checkout in the workspace outputs.
+
+Privacy wording is a concise description of the implemented data flow, not a professionally reviewed legal policy. No client testimonials or commercial outcomes have been fabricated.
