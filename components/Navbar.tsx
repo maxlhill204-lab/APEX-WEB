@@ -3,18 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { track } from "@/lib/analytics";
 const links = [
-  ["Work", "/#work"],
   ["Services", "/#services"],
   ["Packages", "/#packages"],
-  ["Process", "/#process"],
-  ["FAQ", "/#faq"],
+  ["Contact", "/#contact"],
 ];
 export function Brand() {
   return (
     <span className="brand">
-      <span className="brand-mark" aria-hidden="true">
-        A
-      </span>
       APEX<span className="brand-light">WEB</span>
     </span>
   );
@@ -38,7 +33,7 @@ export function Navbar() {
   return (
     <header className="header">
       <div className="container nav">
-        <Link href="/" title="APEXWEB home">
+        <Link href="/" title="APEXWEB home" className="nav-brand">
           <Brand />
         </Link>
         <nav className="desktop-nav" aria-label="Main navigation">

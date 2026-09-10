@@ -26,6 +26,7 @@ export function Footer() {
           <Link href="/#packages">Packages</Link>
           <Link href="/#contact">Contact</Link>
           <Link href="/privacy">Privacy</Link>
+          <Link href="/credits">Visual credits</Link>
           <a href="#main">Back to top ↑</a>
         </div>
         <span>Designed with purpose.</span>

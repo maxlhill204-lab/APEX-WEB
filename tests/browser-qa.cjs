@@ -5,11 +5,13 @@ const baseURL = process.env.BASE_URL || "http://localhost:3000";
 const qaOutput = process.env.QA_OUTPUT_DIR || "test-results/qa";
 fs.mkdirSync(qaOutput, { recursive: true });
 (async () => {
-  const browser = await chromium.connectOverCDP(
-    process.env.CDP_URL || "http://127.0.0.1:9222",
-  );
-  const context = browser.contexts()[0];
-  const page = context.pages()[0];
+  const browser = process.env.QA_HEADLESS
+    ? await chromium.launch({ channel: "chrome", headless: true })
+    : await chromium.connectOverCDP(
+        process.env.CDP_URL || "http://127.0.0.1:9222",
+      );
+  const context = browser.contexts()[0] || (await browser.newContext());
+  const page = context.pages()[0] || (await context.newPage());
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   const report = { widths: [], axe: [], flows: [], errors };
@@ -33,7 +35,7 @@ fs.mkdirSync(qaOutput, { recursive: true });
     if ([390, 1440].includes(width))
       await page.screenshot({
         path: `${qaOutput}/home-${width}.png`,
-        fullPage: true,
+        fullPage: false,
       });
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
@@ -51,16 +53,9 @@ fs.mkdirSync(qaOutput, { recursive: true });
       })),
     })),
   });
-  await page
-    .getByRole("button", { name: "Rotate model right", exact: true })
-    .click();
-  await page
-    .getByRole("button", { name: "Pause ambient animation", exact: true })
-    .click();
-  await page
-    .getByRole("button", { name: "Play ambient animation", exact: true })
-    .click();
-  report.flows.push("3D rotation and pause controls");
+  await page.locator(".cinema-renderer").focus();
+  await page.keyboard.press("ArrowRight");
+  report.flows.push("Keyboard model rotation");
   await page
     .locator("summary")
     .filter({ hasText: "Compare the details" })
@@ -89,7 +84,7 @@ fs.mkdirSync(qaOutput, { recursive: true });
   for (let step = 0; step < 5; step++) {
     await page.screenshot({
       path: `${qaOutput}/quote-step-${step + 1}.png`,
-      fullPage: true,
+      fullPage: false,
     });
     axe = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
@@ -177,7 +172,7 @@ fs.mkdirSync(qaOutput, { recursive: true });
   report.flows.push("simulated failure preserves review");
   await page.screenshot({
     path: `${qaOutput}/quote-failure.png`,
-    fullPage: true,
+    fullPage: false,
   });
   await page.unroute("**/api/quote");
   await page.route("**/api/quote", (route) =>
@@ -198,7 +193,7 @@ fs.mkdirSync(qaOutput, { recursive: true });
   report.flows.push("simulated success UI (not live delivery)");
   await page.screenshot({
     path: `${qaOutput}/quote-success.png`,
-    fullPage: true,
+    fullPage: false,
   });
   await page.unroute("**/api/quote");
   for (const path of [

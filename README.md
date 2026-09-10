@@ -19,13 +19,17 @@ Use `.env.example` for local configuration. Production Firebase environment vari
 
 Edit `site.config.ts` for contact email, Instagram, website URL, package prices and inclusions, care plans and FAQs. Current prices are copied from the existing repository, not invented: builds $300/$550/$850 AUD and optional care $39/$79/$149 per month. Final scope and price are agreed in a quote.
 
-## Interactive showcase
+## Cinematic landing page
 
-`ImmersiveShowcase.tsx` coordinates four scroll chapters. `DeviceScene.tsx` dynamically loads a real Three.js laptop and phone model, rendered with rounded geometry, metallic materials and the existing demo website textures. Scroll changes rotation and composition; buttons and mouse dragging allow manual rotation. Pause stops ambient animation. Reduced-motion users and browsers without WebGL see a static website preview. Rendering pauses when the scene is offscreen or the tab is hidden, uses capped pixel density and a maximum of 45 frames per second, and disposes graphics resources on navigation.
+`ImmersiveShowcase.tsx` follows a continuous native-scroll timeline: a closed laptop on reflective marble opens and rotates; the camera approaches its blue globe screen; the same globe fills the viewport; Mars, Jupiter and Neptune pass with individual brand statements; the universe shrinks away; a desk and laptop return for an illustrated deployment; the real quote wizard follows immediately. Transparent navigation has a centred wordmark, and the fixed bottom CTA jumps directly to the inline enquiry. Package details and other supporting information follow the form.
+
+`DeviceScene.tsx` uses Three.js with physical materials, planar reflections, photographic marble maps, NASA-derived planetary maps and a custom globe shader. Dragging and left/right arrow keys rotate the scene without visible controls. Scroll is never hijacked; the scrollbar is visually hidden. No ambient loops need a pause control: the renderer redraws on progress, interaction or asset changes, and suspends rendering offscreen or in a hidden tab. Pixel density is capped at 1.5. Graphics resources are disposed on navigation.
+
+Reduced-motion and WebGL-failure presentations use still frames from the actual scene. A responsive opening poster is visible while the 3D code and textures load. `pages/credits.tsx` documents the Solar System Scope CC BY 4.0 and Poly Haven CC0 assets. Poster generation hides the HTML interface before capturing the canvas region.
 
 ## Quote delivery
 
-`/quote?package=business&source=outreach` preselects a package and preserves attribution. `/contact` retains the existing route and runs the same wizard. Five steps cover package, business, requirements/style/timing, contact and review. Back/edit preserve answers. Validation occurs in the browser and again on the server. Failed requests retain all answers. Submission has a synchronous duplicate lock and a deterministic document ID for retries.
+The home page embeds the same five-step wizard. `/quote?package=business&source=outreach` preselects a package and preserves attribution. `/contact` retains the existing route and runs the same wizard. Five steps cover package, business, requirements/style/timing, contact and review. Back/edit preserve answers. Validation occurs in the browser and again on the server. Failed requests retain all answers. Submission has a synchronous duplicate lock and a deterministic document ID for retries.
 
 `POST /api/quote` validates content type, origin, allowed options, field types and lengths, consent and a honeypot. In-memory IP rate limiting is a best-effort safeguard per server instance; it is not a global distributed quota. For higher traffic, add shared rate limiting or a challenge provider. No user contact details are sent to analytics.
 
@@ -51,6 +55,12 @@ Preserve the GitHub source as well as the Vercel deployment to prevent future de
 
 ## Tests and limits
 
-`npm test` covers lead validation, HTML escaping, request guards, storage failure, successful acceptance and retry identity. Those tests mock external services. `tests/browser-qa.cjs` attaches to an agent-browser Chromium session; set `CDP_URL` to the current endpoint. It tests nine widths, accessibility, menu, model controls, package links, wizard validation/back/review, and explicitly mocked success/failure states. Real server delivery is checked separately against Vercel. Browser screenshots and the handover report live outside the source checkout in the workspace outputs.
+`npm test` covers lead validation, HTML escaping, request guards, storage failure, successful acceptance and retry identity. Those tests mock external services. `tests/browser-qa.cjs` can attach to an agent-browser Chromium session (`CDP_URL`) or use a dedicated headless Chrome context (`QA_HEADLESS=1`). It tests nine widths, accessibility, menu, model controls, package links, wizard validation/back/review, and explicitly mocked success/failure states. Real server delivery is checked separately against Vercel. Browser screenshots and the handover report live outside the source checkout in the workspace outputs.
 
 Privacy wording is a concise description of the implemented data flow, not a professionally reviewed legal policy. No client testimonials or commercial outcomes have been fabricated.
+
+## Cinematic acceptance checks
+
+`node tests/cinema-qa.cjs` checks 65 timeline frames across 320, 390, 768, 1440 and 1920 px, heading bounds, page overflow, keyboard rotation, the direct enquiry CTA, texture loading and reduced-motion accessibility. Set `BASE_URL` and `QA_OUTPUT_DIR` to test a production deployment. `tests/browser-qa.cjs` additionally covers nine responsive widths and the complete quote flow with mocked network outcomes. These tests do not prove email delivery.
+
+The real Firebase enquiry path was verified before this visual revision and remains unchanged. Resend credentials and the custom domain DNS remain external configuration items; do not claim they are complete.
