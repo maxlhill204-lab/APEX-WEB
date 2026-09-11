@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { Layout } from "@/components/Layout";
 import "@/styles/globals.css";
-const inter = Inter({ subsets: ["latin"], display: "swap" });
+const inter = Inter({ subsets: ["latin"], display: "optional" });
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   useEffect(() => {

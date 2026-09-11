@@ -14,13 +14,12 @@ export const packages = [
     price: 300,
     pages: "1–3 pages",
     description:
-      "For small businesses that need a professional place to call home online.",
+      "A polished, straightforward home for your business. Clear information. Easy enquiries.",
     features: [
-      "1–3 core pages",
-      "Mobile-friendly custom design",
-      "Contact form or enquiry button",
-      "Basic search engine setup",
-      "Ready for launch",
+      "Custom responsive design · 1–3 pages",
+      "Contact form and essential SEO",
+      "Static layouts — no animation or 3D",
+      "Launch checks and handover",
     ],
     recommended: false,
     cta: "Choose Starter",
@@ -29,15 +28,14 @@ export const packages = [
     id: "business",
     name: "Local Business",
     price: 550,
-    pages: "Up to 5 pages",
+    pages: "Scoped to your content",
     description:
-      "For service businesses ready to show what they do and turn interest into enquiries.",
+      "A more interactive website with considered scrolling effects and useful customer features.",
     features: [
-      "Up to 5 pages",
-      "Custom design direction",
-      "Dedicated service sections",
-      "Clear enquiry and contact options",
-      "Review and refinements before launch",
+      "Custom layouts and scroll animations",
+      "Interactive galleries and service sections",
+      "Stripe payment integration available",
+      "Moderate motion — no cinematic 3D journey",
     ],
     recommended: true,
     cta: "Choose Business",
@@ -46,15 +44,14 @@ export const packages = [
     id: "growth",
     name: "Growth Site",
     price: 850,
-    pages: "Up to 8 pages",
+    pages: "Up to 10 pages",
     description:
-      "For businesses needing more content, richer layouts, or additional features.",
+      "The full experience. Cinematic 3D, scroll-driven storytelling and connected business tools.",
     features: [
-      "Up to 8 pages",
-      "More advanced page layouts",
-      "Booking or catalogue sections",
-      "Expanded search engine structure",
-      "Launch support and handover",
+      "Cinematic 3D and scroll sequences",
+      "Up to 10 custom pages",
+      "Stripe and Firebase / database integration",
+      "Email and newsletter connections",
     ],
     recommended: false,
     cta: "Choose Growth",
@@ -63,24 +60,27 @@ export const packages = [
 export const carePlans = [
   {
     id: "hosted",
-    name: "Hosted",
+    name: "Starter care",
     price: 39,
+    annual: 351,
     description:
-      "Hosting, basic uptime checks, security and dependency checks, and email support.",
+      "Hosting, uptime and dependency checks for a simple site. Essential support with agreed update allowances.",
   },
   {
     id: "managed",
-    name: "Managed",
+    name: "Business care",
     price: 79,
+    annual: 711,
     description:
-      "Hosted care plus small text and image updates, maintenance, and minor fixes.",
+      "Hosting and maintenance for an interactive site, including checks on agreed Stripe or database connections.",
   },
   {
     id: "priority",
-    name: "Priority",
+    name: "Growth care",
     price: 149,
+    annual: 1341,
     description:
-      "Managed care plus priority requests and a larger scope for improvements.",
+      "Care for a more connected site: database, payment and email integrations, with agreed monitoring and update allowances.",
   },
 ];
 export const featureOptions = [
@@ -91,6 +91,10 @@ export const featureOptions = [
   "Online bookings",
   "Product catalogue",
   "Ecommerce",
+  "Stripe payments",
+  "3D and cinematic scrolling",
+  "Firebase / database",
+  "Email / newsletters",
   "Instagram / social links",
   "Map / location",
   "Service pages",
@@ -107,11 +111,11 @@ export const styleOptions = [
 export const faqs = [
   [
     "How much does a website cost?",
-    "One-time builds start at $300 for Starter, $550 for Local Business, and $850 for Growth. The final quote depends on pages, content and features. Optional monthly care is separate. We confirm the complete price before work begins.",
+    "One-time builds start at $300 for Starter, $550 for Local Business, and $850 for Growth. The final quote depends on design complexity, motion and integrations. Optional hosting is separate, with monthly or discounted annual billing. We confirm the complete price before work begins.",
   ],
   [
     "Which package should I choose?",
-    "Choose Starter for a simple online presence, Local Business for a fuller picture of your services, or Growth for more pages and features. If you’re unsure, choose “Help me decide” in the quote form.",
+    "Choose Starter for a static site, Local Business for moderate interactive motion and Stripe, or Growth for cinematic 3D and database or email integrations. If you’re unsure, choose “Help me decide” in the quote form.",
   ],
   [
     "Does a quote request commit me to anything?",
@@ -139,7 +143,7 @@ export const faqs = [
   ],
   [
     "Is monthly hosting or management compulsory?",
-    "No. The build is a one-time project. Optional care starts at $39 per month after approval. Domains, external subscriptions and the scope of updates are confirmed separately in your quote.",
+    "No. The build is a one-time project. Optional care starts at $39 per month or $351 per year after approval. Annual payment saves 25% compared with twelve monthly payments. Domains, external subscriptions and the scope of updates are confirmed separately in your quote.",
   ],
   [
     "What happens after I send my enquiry?",

@@ -7,6 +7,7 @@ import {
 export type Lead = {
   package: string;
   care: string;
+  billing: string;
   business: string;
   industry: string;
   website: string;
@@ -34,6 +35,7 @@ export type Lead = {
 export const emptyLead: Lead = {
   package: "unsure",
   care: "unsure",
+  billing: "unsure",
   business: "",
   industry: "",
   website: "",
@@ -66,7 +68,15 @@ export const timeframes = [
   "1–3 months",
   "3+ months",
 ];
-export const pageCounts = ["Not sure", "1–3", "4–5", "6–8", "9+"];
+export const pageCounts = [
+  "Not sure",
+  "1–3",
+  "4–5",
+  "6–8",
+  "9+",
+  "6–10",
+  "10+",
+];
 export function validUrl(value: string) {
   if (!value) return true;
   try {
@@ -116,6 +126,7 @@ export function parseLead(input: unknown): {
   const errors: Record<string, string> = {};
   for (const key of Object.keys(emptyLead) as (keyof Lead)[]) {
     if (key === "features" || key === "consent") continue;
+    if (key === "billing" && body[key] === undefined) continue;
     if (typeof body[key] !== "string") {
       errors[key] = "Please check this field.";
       continue;
@@ -141,6 +152,8 @@ export function parseLead(input: unknown): {
   else lead.features = [...new Set(body.features)] as string[];
   if (![...carePlans.map((p) => p.id), "none", "unsure"].includes(lead.care))
     errors.care = "Choose a listed care option.";
+  if (!["monthly", "yearly", "unsure"].includes(lead.billing))
+    errors.billing = "Choose a listed billing period.";
   if (!styleOptions.includes(lead.style))
     errors.style = "Choose a listed design style.";
   if (!timeframes.includes(lead.timeframe))

@@ -91,16 +91,16 @@ export function Packages() {
                 ["Pages", ...packages.map((p) => p.pages)],
                 ["Phone, tablet & desktop", "Included", "Included", "Included"],
                 [
-                  "Service presentation",
-                  "Core information",
-                  "Dedicated sections",
-                  "Expanded content",
+                  "Motion",
+                  "Static — no animation",
+                  "Moderate interactive scrolling",
+                  "Cinematic 3D sequences",
                 ],
                 [
-                  "Bookings / catalogue",
-                  "Quoted separately",
-                  "Quoted separately",
-                  "Sections scoped in quote",
+                  "Integrations",
+                  "Contact enquiries",
+                  "Stripe available",
+                  "Stripe, database, email / newsletters",
                 ],
                 ["Hosting & domain", "Separate", "Separate", "Separate"],
               ].map((row) => (
@@ -131,6 +131,7 @@ export function Packages() {
                 {p.name} <span>${p.price}/mo</span>
               </h3>
               <p>{p.description}</p>
+              <p><strong>${p.annual}/year — save 25%</strong></p>
               <Link href={`/quote?care=${p.id}`}>
                 Ask about {p.name} <ArrowUpRight size={16} />
               </Link>

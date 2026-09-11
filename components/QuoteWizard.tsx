@@ -34,11 +34,15 @@ type Props = {
   initialPackage?: string;
   initialCare?: string;
   attribution: Partial<Lead>;
+  onPackageChange?: (id: string) => void;
+  onStepChange?: (step: number) => void;
 };
 export function QuoteWizard({
   initialPackage = "unsure",
   initialCare = "unsure",
   attribution,
+  onPackageChange,
+  onStepChange,
 }: Props) {
   const [lead, setLead] = useState<Lead>({
     ...emptyLead,
@@ -65,6 +69,12 @@ export function QuoteWizard({
       track("quote_started", { package: initialPackage });
     }
   }, [initialPackage]);
+  useEffect(() => {
+    onPackageChange?.(lead.package);
+  }, [lead.package, onPackageChange]);
+  useEffect(() => {
+    onStepChange?.(step);
+  }, [step, onStepChange]);
   function update<K extends keyof Lead>(key: K, value: Lead[K]) {
     setLead((l) => ({ ...l, [key]: value }));
     setErrors((e) => ({ ...e, [key]: "" }));
@@ -215,7 +225,7 @@ export function QuoteWizard({
     </label>
   );
   const select = (
-    name: "care" | "timeframe" | "pages" | "contact",
+    name: "billing" | "care" | "timeframe" | "pages" | "contact",
     label: string,
     options: { value: string; label: string }[],
   ) => (
@@ -297,6 +307,7 @@ export function QuoteWizard({
     <form
       ref={form}
       className="wizard"
+      data-step={step}
       noValidate
       onSubmit={submit}
       aria-busy={status === "sending"}
@@ -319,7 +330,11 @@ export function QuoteWizard({
         {steps[step]}
       </h2>
       <p className="step-description">{descriptions[step]}</p>
-      <fieldset disabled={status === "sending"}>
+      <fieldset
+        key={step}
+        className="wizard-step-content"
+        disabled={status === "sending"}
+      >
         <legend className="sr-only">{steps[step]}</legend>
         {step === 0 && (
           <>
@@ -454,8 +469,13 @@ export function QuoteWizard({
               { value: "none", label: "Build only for now" },
               ...carePlans.map((p) => ({
                 value: p.id,
-                label: `${p.name} — $${p.price}/month`,
+                label: `${p.name} — $${p.price}/month or $${p.annual}/year`,
               })),
+            ])}
+            {select("billing", "Preferred hosting billing", [
+              { value: "unsure", label: "Discuss this with me" },
+              { value: "monthly", label: "Monthly" },
+              { value: "yearly", label: "Yearly — save 25%" },
             ])}
             {field("notes", "Anything else? (optional)", "textarea")}
           </>
@@ -498,6 +518,7 @@ export function QuoteWizard({
             {review("Website", 2, [
               ["Features", lead.features.join(", ") || "Please recommend"],
               ["Style", lead.style],
+              ["Hosting billing", lead.billing],
               ["Timing", lead.timeframe],
               ["Pages", lead.pages],
               [

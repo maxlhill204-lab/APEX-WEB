@@ -56,17 +56,21 @@ fs.mkdirSync(qaOutput, { recursive: true });
   await page.locator(".cinema-renderer").focus();
   await page.keyboard.press("ArrowRight");
   report.flows.push("Keyboard model rotation");
+  await page.locator("#start").scrollIntoViewIfNeeded();
   await page
-    .locator("summary")
-    .filter({ hasText: "Compare the details" })
+    .getByRole("button", { name: /03 \/ CINEMATIC Growth Site/ })
     .click();
-  await page.getByRole("table").waitFor();
-  report.flows.push("package comparison");
   await page
-    .locator("summary")
-    .filter({ hasText: "How much does a website cost?" })
-    .click();
-  report.flows.push("FAQ");
+    .getByText(
+      "The full experience. Cinematic 3D, scroll-driven storytelling and connected business tools.",
+    )
+    .waitFor();
+  await page.getByRole("button", { name: "Build my growth site" }).click();
+  await page.locator('input[value="growth"]').waitFor();
+  if (!(await page.locator('input[value="growth"]').isChecked()))
+    throw Error("Inline package selection lost");
+  report.flows.push("Interactive packages and inline preselected enquiry");
+  await page.getByRole("button", { name: "Close enquiry" }).click();
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole("button", { name: "Open menu" }).click();
   await page.getByRole("dialog").waitFor();
@@ -75,7 +79,7 @@ fs.mkdirSync(qaOutput, { recursive: true });
     throw Error("Menu Escape failed");
   report.flows.push("mobile menu Escape");
   await page.goto(
-    `${baseURL}/quote?package=business&source=qa&utm_campaign=acceptance`,
+    `${baseURL}/quote?package=business&care=managed&billing=yearly&source=qa&utm_campaign=acceptance`,
   );
   await page.locator('input[value="business"]').waitFor();
   if (!(await page.locator('input[value="business"]').isChecked()))
@@ -114,6 +118,12 @@ fs.mkdirSync(qaOutput, { recursive: true });
       report.flows.push("required validation");
     }
     if (step === 2) {
+      if (
+        (await page.getByLabel("Preferred hosting billing").inputValue()) !==
+        "yearly"
+      )
+        throw Error("Annual deep link failed");
+      report.flows.push("Annual hosting selection preserved");
       await page.getByLabel("Gallery", { exact: true }).check();
       await page.getByLabel("Modern", { exact: true }).check();
       await page.getByRole("button", { name: "Back", exact: true }).click();
@@ -212,6 +222,12 @@ fs.mkdirSync(qaOutput, { recursive: true });
   );
   console.log(JSON.stringify(report, null, 2));
   await browser.close();
+  if (
+    report.widths.some((w) => w.scroll > w.width) ||
+    report.axe.some((a) => a.violations.length) ||
+    errors.length
+  )
+    process.exitCode = 1;
 })().catch((e) => {
   console.error(e);
   process.exit(1);

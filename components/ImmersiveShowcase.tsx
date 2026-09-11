@@ -6,36 +6,36 @@ const chapters = [
   {
     start: 2.1,
     end: 3.65,
-    title: "Closer to a\nworld of people.",
-    copy: "Turn a local business into an online destination.",
+    title: "Built here.\nConnected everywhere.",
+    copy: "Based in Victoria. Make it easy for customers, wherever they are, to discover your business and get in touch.",
     name: "reach",
   },
   {
     start: 3.9,
     end: 5.05,
-    title: "Unmistakably\nbold.",
-    copy: "For businesses that were never meant to blend in.",
+    title: "Your brand.\nYour design.",
+    copy: "Choose the colours, typography, layouts and interactions. We design around your business, not a fixed template.",
     name: "mars",
   },
   {
     start: 5.15,
     end: 6.3,
-    title: "Quietly\nextraordinary.",
-    copy: "Considered design. A presence that speaks for itself.",
+    title: "Make every\nscroll count.",
+    copy: "Interactive 3D, product reveals and cinematic transitions. A custom experience that shows what you do.",
     name: "jupiter",
   },
   {
     start: 6.4,
     end: 7.55,
-    title: "Entirely\nyour own.",
-    copy: "Your personality, in every colour and every detail.",
+    title: "Looks incredible.\nWorks for you.",
+    copy: "Take Stripe payments. Connect your database. Collect enquiries and send newsletters. Choose the tools you actually need.",
     name: "neptune",
   },
   {
     start: 8.7,
     end: 10.25,
-    title: "Your idea.\nOut in the world.",
-    copy: "From the first conversation to the moment you go live.",
+    title: "You approve it.\nWe launch it.",
+    copy: "We handle the domain, hosting and launch checks. Review your private preview, approve the website, and we take it live.",
     name: "launch",
   },
 ];
@@ -70,6 +70,12 @@ export function ImmersiveShowcase() {
           el.style.visibility = "";
           el.style.filter = "";
         });
+      const handoff = document.getElementById("screen-handoff");
+      if (handoff) {
+        handoff.style.opacity = "";
+        handoff.style.visibility = "";
+        handoff.style.transform = "";
+      }
       return;
     }
     let frame = 0;
@@ -82,7 +88,8 @@ export function ImmersiveShowcase() {
       const intro = root.querySelector<HTMLElement>(".cinema-opening");
       if (intro) {
         intro.style.opacity = String(1 - clamp((p - 0.35) / 0.75));
-        intro.style.transform = `translateY(${-p * 38}vh)`;
+        intro.style.transform = `translateY(${-p * 10}vh)`;
+        intro.style.visibility = p > 1.1 ? "hidden" : "visible";
       }
       root
         .querySelectorAll<HTMLElement>(".cinema-copy")
@@ -95,10 +102,20 @@ export function ImmersiveShowcase() {
           el.style.transform = `translate3d(${index === 4 ? -leave * 45 : 0}vw,${(1 - enter) * 50 - leave * 90}px,0)`;
         });
       const curtain = root.querySelector<HTMLElement>(".cinema-curtain");
-      if (curtain) curtain.style.opacity = String(clamp((p - 10.4) / 0.45));
+      if (curtain)
+        curtain.style.opacity = String(
+          p < 8.3 ? clamp((p - 7.98) / 0.32) : 1 - clamp((p - 8.3) / 0.5),
+        );
+      const handoff = document.getElementById("screen-handoff");
+      if (handoff) {
+        const top = root.offsetTop + root.offsetHeight - innerHeight - scrollY;
+        handoff.style.transform = `translateY(${-Math.max(0, top)}px)`;
+        handoff.style.pointerEvents = p >= 10.99 ? "auto" : "none";
+        handoff.style.visibility = p >= 8.3 ? "visible" : "hidden";
+      }
       const stage = root.querySelector<HTMLElement>(".cinema-stage");
       if (stage)
-        stage.style.filter = `blur(${p > 1.6 && p < 2 ? Math.sin(((p - 1.6) / 0.4) * Math.PI) * 2 : 0}px)`;
+        stage.style.filter = `blur(${p > 1.1 && p < 2 ? clamp((p - 1.1) / 0.9) * 9 : 0}px)`;
     };
     const schedule = () => {
       if (!frame) frame = requestAnimationFrame(update);
@@ -153,14 +170,14 @@ export function ImmersiveShowcase() {
             possibility.
           </h1>
           <h2>
-            A small beginning.
+            Custom websites.
             <br />
-            An extraordinary future.
+            Out of this world.
           </h2>
           <p>
             Custom websites.
             <br />
-            Made for your next chapter.
+            Designed around your business.
           </p>
         </div>
         {chapters.map((c) => (
@@ -175,6 +192,14 @@ export function ImmersiveShowcase() {
             }
             key={c.name}
           >
+            <span className="chapter-index">
+              {String(chapters.indexOf(c) + 1).padStart(2, "0")} /{" "}
+              {c.name === "reach"
+                ? "VICTORIA → THE WORLD"
+                : c.name === "launch"
+                  ? "FROM PREVIEW TO PRODUCTION"
+                  : "A WORLD OF POSSIBILITIES"}
+            </span>
             <h2>{c.title}</h2>
             <p>{c.copy}</p>
           </div>

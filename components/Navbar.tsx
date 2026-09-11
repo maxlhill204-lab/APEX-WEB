@@ -3,9 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { track } from "@/lib/analytics";
 const links = [
-  ["Services", "/#services"],
+  ["Services", "/services"],
   ["Packages", "/#packages"],
-  ["Contact", "/#contact"],
+  ["Contact", "/contact"],
 ];
 export function Brand() {
   return (

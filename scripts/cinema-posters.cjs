@@ -5,8 +5,9 @@ const sharp = require("sharp");
   const page = await browser.newPage();
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto("http://localhost:3000");
+    await page.goto(process.env.BASE_URL || "http://localhost:3000");
     await page.waitForLoadState("networkidle");
+    await page.locator(".cinema-ready").waitFor({timeout:60000});
     await page.addStyleTag({
       content:
         "header,.cinema-opening,.cinema-copy,.cinema-cta,nextjs-portal,.cinema-poster,.cinema-curtain{visibility:hidden!important}",

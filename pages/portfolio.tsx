@@ -3,5 +3,5 @@ export default function Portfolio() {
   return null;
 }
 export const getServerSideProps: GetServerSideProps = async () => ({
-  redirect: { destination: "/#work", permanent: true },
+  redirect: { destination: "/#packages", permanent: true },
 });

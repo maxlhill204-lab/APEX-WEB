@@ -16,6 +16,7 @@ export function emailContent(lead: Lead, reference: string) {
       packages.find((p) => p.id === lead.package)?.name || lead.package,
     ],
     ["Care", carePlans.find((p) => p.id === lead.care)?.name || lead.care],
+    ["Hosting billing", lead.billing],
     ["Name", lead.name],
     ["Email", lead.email],
     ["Phone", lead.phone],

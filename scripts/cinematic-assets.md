@@ -1,8 +1,8 @@
 # Cinematic asset provenance
 
-- Planet maps: Solar System Scope, https://www.solarsystemscope.com/textures/, CC BY 4.0. Based on NASA imagery, with source colour tuning and some reconstructed terrain. Mars obtained from https://commons.wikimedia.org/wiki/File:Solarsystemscope_texture_2k_mars.jpg. Converted to 2048 px WebP at quality 85.
-- Marble diffuse and OpenGL normal map: Rob Tuytel, Poly Haven Marble 01, https://polyhaven.com/a/marble_01, CC0. Converted from the 1K JPG maps to WebP at quality 85.
-- Posters: captured from our own Three.js scenes with all HTML overlays hidden; `scripts/cinema-posters.cjs` regenerates them from the local development site. The canvas renders the same models used interactively.
-- `studio-environment.bin.gz`: generated with Three.js 0.186.0 RoomEnvironment and PMREMGenerator.fromScene(room, .04, .1, 100, {size:64}). The target is 336 x 256 RGBA half-float (Uint16), read with readRenderTargetPixels and gzip-compressed. It is loaded as a DataTexture with HalfFloatType, CubeUVReflectionMapping, LinearFilter, and LinearSRGBColorSpace. This avoids generating the filtered environment on visitors' devices. Three.js is MIT licensed.
-
-Public attribution is available at /credits and linked in the footer.
+- Sun and all eight planets: Solar System Scope, https://www.solarsystemscope.com/textures/, CC BY 4.0. NASA-derived maps include source colour adjustments and reconstructed terrain. New maps resized to1024px; earlier Earth/Mars/Jupiter/Neptune maps retained. Mars from its Wikimedia Commons mirror. Radii and distances are art-directed, not to scale.
+- Desk: Wood Table001, photography by Dimitrios Savva, processing by Rico Cilliers, Poly Haven, https://polyhaven.com/a/wood_table_001, CC0. 1K diffuse, normal and roughness maps converted to WebP. The earlier Marble01 maps remain unused assets.
+- Apple mark: Simple Icons Apple SVG, https://github.com/simple-icons/simple-icons/blob/develop/icons/apple.svg, CC0. Apple trademark belongs to Apple Inc.; illustrative laptop, no affiliation.
+- Model geometry, camera choreography, solar systems, black hole, particles, rocket and schematic are made in Three.js for this project. Space effects are illustrative, not a scientific simulation.
+- Studio environment: precomputed Three.js RoomEnvironment filtered radiance map. Real-time PBR, screen/environment and planar desk reflections; not full path tracing.
+- Posters: actual scene captures with HTML overlays hidden. Regenerate with BASE_URL set to the local production server and node scripts/cinema-posters.cjs.

@@ -3,5 +3,5 @@ export default function About() {
   return null;
 }
 export const getServerSideProps: GetServerSideProps = async () => ({
-  redirect: { destination: "/#process", permanent: true },
+  redirect: { destination: "/services", permanent: true },
 });

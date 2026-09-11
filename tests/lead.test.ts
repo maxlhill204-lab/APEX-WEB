@@ -51,6 +51,22 @@ test("email HTML escapes user content", () => {
   assert.ok(email.businessHtml.includes("&lt;img"));
   assert.ok(email.confirmationHtml.includes("&lt;img"));
 });
+test("annual hosting survives validation and email formatting", () => {
+  const parsed = parseLead({ ...valid, care: "priority", billing: "yearly" });
+  assert.equal(parsed.lead?.billing, "yearly");
+  assert.ok(
+    emailContent(parsed.lead!, "AW-year").businessText.includes(
+      "Hosting billing: yearly",
+    ),
+  );
+});
+test("rejects invalid hosting billing", () =>
+  assert.ok(parseLead({ ...valid, billing: "free" }).errors.billing));
+test("accepts existing forms without a billing field", () => {
+  const legacy = { ...valid } as Record<string, unknown>;
+  delete legacy.billing;
+  assert.equal(parseLead(legacy).lead?.billing, "unsure");
+});
 let ip = 0;
 async function call(
   body: unknown,

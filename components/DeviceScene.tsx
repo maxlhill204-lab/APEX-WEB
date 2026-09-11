@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as T from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import { createSolarSystem } from "./SolarSystem";
 import { Reflector } from "three/addons/objects/Reflector.js";
 type Props = {
   progress: React.RefObject<number>;
@@ -89,8 +90,8 @@ export default function DeviceScene({
       return t;
     };
     const studio = new T.Scene();
-    studio.background = new T.Color("#171c20");
-    studio.fog = new T.Fog("#171c20", 18, 45);
+    studio.background = new T.Color("#000000");
+    studio.fog = new T.Fog("#000000", 12, 26);
     const camera = new T.PerspectiveCamera(38, 1, 0.025, 120);
     // Precomputed from Three.js RoomEnvironment. Loading the filtered radiance map
     // avoids generating and compiling an entire environment on the visitor's phone.
@@ -127,13 +128,52 @@ export default function DeviceScene({
         dirty = true;
         manager.itemEnd(environmentURL);
       });
-    studio.add(new T.AmbientLight(0xb9cad9, 0.6));
+    studio.add(new T.AmbientLight(0xb9cad9, 0.12));
     const key = new T.DirectionalLight(0xffe7ce, 3.2);
     key.position.set(-4, 7, 3);
     key.castShadow = true;
     key.shadow.mapSize.set(1024, 1024);
     key.shadow.bias = -0.001;
     studio.add(key);
+    const spotlight = new T.SpotLight(0xffecd8, 180, 24, 0.48, 0.9, 2);
+    spotlight.position.set(0, 7, 1);
+    spotlight.target.position.set(0, -1, 0);
+    studio.add(spotlight, spotlight.target);
+    const beamMaterial = new T.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      side: T.DoubleSide,
+      blending: T.AdditiveBlending,
+      vertexShader: `varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+      fragmentShader: `varying vec2 vUv;void main(){float edge=pow(sin(vUv.x*3.14159),5.);gl_FragColor=vec4(.72,.79,1.,edge*.12*pow(vUv.y,.7));}`,
+    });
+    const beam = new T.Mesh(
+      new T.ConeGeometry(3.5, 9, 64, 1, true),
+      beamMaterial,
+    );
+    beam.position.set(0, 3.4, 0);
+    studio.add(beam);
+    const wallCanvas = document.createElement("canvas");
+    wallCanvas.width = 16;
+    wallCanvas.height = 256;
+    const wc = wallCanvas.getContext("2d")!,
+      wg = wc.createLinearGradient(0, 256, 0, 0);
+    wg.addColorStop(0, "#030405");
+    wg.addColorStop(0.22, "#3d3933");
+    wg.addColorStop(0.4, "#b6a286");
+    wg.addColorStop(1, "#ddd0b9");
+    wc.fillStyle = wg;
+    wc.fillRect(0, 0, 16, 256);
+    const wallTexture = new T.CanvasTexture(wallCanvas);
+    wallTexture.colorSpace = T.SRGBColorSpace;
+    textures.push(wallTexture);
+    const wallMaterial = new T.MeshStandardMaterial({
+      map: wallTexture,
+      roughness: 1,
+    });
+    const wall = new T.Mesh(new T.PlaneGeometry(70, 35), wallMaterial);
+    wall.position.set(0, 10, -15);
+    studio.add(wall);
     const rim = new T.DirectionalLight(0xa0cbff, 4);
     rim.position.set(2, 3, -5);
     studio.add(rim);
@@ -141,9 +181,9 @@ export default function DeviceScene({
     screenLight.position.set(0, 0, 1);
     studio.add(screenLight);
     const silver = new T.MeshStandardMaterial({
-      color: 0x858b95,
+      color: 0x4b4d50,
       metalness: 0.96,
-      roughness: 0.23,
+      roughness: 0.2,
     });
     const graphite = new T.MeshStandardMaterial({
       color: 0x080b10,
@@ -184,12 +224,61 @@ export default function DeviceScene({
         keyboard.setMatrixAt(ki++, temp.matrix);
       }
     laptop.add(keyboard);
+    const legends = document.createElement("canvas");
+    legends.width = 1024;
+    legends.height = 320;
+    const lc = legends.getContext("2d")!;
+    lc.fillStyle = "#b4b5b3";
+    lc.font = "15px Arial";
+    lc.textAlign = "center";
+    [
+      "1234567890−=⌫",
+      "QWERTYUIOP[]",
+      "ASDFGHJKL;↵",
+      "ZXCVBNM,./↑",
+      "⌘⌥          ⌘",
+    ].forEach((row, y) =>
+      [...row].forEach((ch, x) => lc.fillText(ch, 40 + x * 77, 40 + y * 61)),
+    );
+    const legendTexture = new T.CanvasTexture(legends);
+    textures.push(legendTexture);
+    const legendPlane = new T.Mesh(
+      new T.PlaneGeometry(4.2, 1.35),
+      new T.MeshBasicMaterial({
+        map: legendTexture,
+        transparent: true,
+        opacity: 0.65,
+        depthWrite: false,
+      }),
+    );
+    legendPlane.rotation.x = -Math.PI / 2;
+    legendPlane.position.set(0, -0.947, 0.08);
+    laptop.add(legendPlane);
+    const holes = new T.InstancedMesh(
+      new T.CircleGeometry(0.009, 6),
+      new T.MeshBasicMaterial({ color: 0x000000 }),
+      420,
+    );
+    let hi = 0;
+    for (const side of [-1, 1])
+      for (let row = 0; row < 35; row++)
+        for (let col = 0; col < 6; col++) {
+          temp.position.set(
+            side * (2.19 + col * 0.021),
+            -0.963,
+            -0.45 + row * 0.038,
+          );
+          temp.rotation.set(-Math.PI / 2, 0, 0);
+          temp.updateMatrix();
+          holes.setMatrixAt(hi++, temp.matrix);
+        }
+    laptop.add(holes);
     const trackpad = box(
       1.6,
       0.009,
       0.83,
       new T.MeshStandardMaterial({
-        color: 0x656c77,
+        color: 0x252a2f,
         metalness: 0.8,
         roughness: 0.33,
       }),
@@ -202,6 +291,19 @@ export default function DeviceScene({
     const cover = box(4.88, 3.08, 0.09, silver, 0.065);
     cover.position.y = 1.54;
     lid.add(cover);
+    const apple = new T.Mesh(
+      new T.PlaneGeometry(0.62, 0.62),
+      new T.MeshStandardMaterial({
+        map: texture("apple.png"),
+        transparent: true,
+        metalness: 0.85,
+        roughness: 0.12,
+        side: T.DoubleSide,
+      }),
+    );
+    apple.position.set(0, 1.6, -0.049);
+    apple.rotation.y = Math.PI;
+    lid.add(apple);
     const bezel = box(4.74, 2.95, 0.018, graphite);
     bezel.position.set(0, 1.54, 0.055);
     lid.add(bezel);
@@ -214,6 +316,32 @@ export default function DeviceScene({
     const screen = new T.Mesh(new T.PlaneGeometry(4.55, 2.56), screenMaterial);
     screen.position.set(0, 1.54, 0.068);
     lid.add(screen);
+    const glassMaterial = new T.MeshPhysicalMaterial({
+      color: 0xc9d9e8,
+      metalness: 0,
+      roughness: 0.055,
+      transparent: true,
+      opacity: 0.19,
+      clearcoat: 1,
+      clearcoatRoughness: 0.025,
+      envMapIntensity: 2.2,
+      ior: 1.52,
+      depthWrite: false,
+    });
+    const glass = new T.Mesh(new T.PlaneGeometry(4.55, 2.56), glassMaterial);
+    glass.position.set(0, 1.54, 0.077);
+    lid.add(glass);
+    const glareMaterial = new T.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      uniforms: { amount: { value: 1 } },
+      vertexShader: `varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+      fragmentShader: `varying vec2 vUv;uniform float amount;void main(){float streak=exp(-pow((vUv.x+vUv.y*.5-.85)*8.,2.));gl_FragColor=vec4(.78,.86,1.,streak*.16*amount);}`,
+    });
+    const glare = new T.Mesh(new T.PlaneGeometry(4.55, 2.56), glareMaterial);
+    glare.position.copy(glass.position);
+    glare.position.z += 0.002;
+    lid.add(glare);
     const cameraDot = new T.Mesh(new T.CircleGeometry(0.016, 12), graphite);
     cameraDot.position.set(0, 2.965, 0.07);
     lid.add(cameraDot);
@@ -223,21 +351,21 @@ export default function DeviceScene({
     );
     seam.position.set(0, -0.943, 2.18);
     laptop.add(seam);
-    const marble = texture("marble.webp");
+    const marble = texture("desk-wood.webp");
     marble.wrapS = marble.wrapT = T.RepeatWrapping;
-    marble.repeat.set(4, 4);
-    const normal = texture("marble-normal.webp", false);
+    marble.repeat.set(6, 6);
+    const normal = texture("desk-normal.webp", false);
     normal.wrapS = normal.wrapT = T.RepeatWrapping;
-    normal.repeat.set(4, 4);
+    normal.repeat.set(6, 6);
     const floorMaterial = new T.MeshStandardMaterial({
       map: marble,
       normalMap: normal,
-      normalScale: new T.Vector2(0.13, 0.13),
-      color: 0x303741,
-      roughness: 0.2,
-      metalness: 0.25,
+      normalScale: new T.Vector2(0.065, 0.065),
+      color: 0x1d2024,
+      roughness: 0.54,
+      metalness: 0.08,
       transparent: true,
-      opacity: 0.82,
+      opacity: 0.997,
     });
     const floor = new T.Mesh(new T.PlaneGeometry(60, 60), floorMaterial);
     floor.rotation.x = -Math.PI / 2;
@@ -245,7 +373,7 @@ export default function DeviceScene({
     floor.receiveShadow = true;
     studio.add(floor);
     const reflection = new Reflector(new T.PlaneGeometry(60, 60), {
-      color: 0x777d87,
+      color: 0x45484d,
       textureWidth: 512,
       textureHeight: 512,
       clipBias: 0.003,
@@ -263,12 +391,12 @@ export default function DeviceScene({
         metalness: 0.12,
       }),
     );
-    desk.position.set(0, -1.2, 1);
+    desk.position.set(0, -1.24, 1);
     studio.add(desk);
     // Render this same globe onto the laptop screen and directly to the viewport after entering it.
     const universe = new T.Scene();
-    universe.background = new T.Color("#02060e");
-    const spaceCamera = new T.PerspectiveCamera(38, 1, 0.01, 150);
+    universe.background = new T.Color("#000000");
+    const spaceCamera = new T.PerspectiveCamera(38, 1, 0.01, 1200);
     const screenCamera = new T.PerspectiveCamera(38, 768 / 432, 0.01, 50);
     screenCamera.position.z = 7;
     const world = new T.Group();
@@ -292,14 +420,16 @@ export default function DeviceScene({
     });
     const geoPoint = (lat: number, lon: number, r = 1.63) => {
       const a = (lat * Math.PI) / 180,
-        b = (lon * Math.PI) / 180;
+        b = ((lon + 180) * Math.PI) / 180;
       return new T.Vector3(
         -Math.cos(a) * Math.cos(b) * r,
         Math.sin(a) * r,
         Math.cos(a) * Math.sin(b) * r,
       );
     };
-    const origin = geoPoint(-34, 151);
+    const hub = geoPoint(-37.8136, 144.9631);
+    const routes: T.BufferGeometry[] = [];
+    const couriers: { mesh: T.Mesh; curve: T.QuadraticBezierCurve3 }[] = [];
     for (const [lat, lon] of [
       [51, 0],
       [40, -74],
@@ -307,127 +437,92 @@ export default function DeviceScene({
       [1, 104],
       [37, -122],
       [-23, -46],
+      [48, 2],
+      [52, 13],
+      [25, 55],
+      [19, 73],
+      [22, 114],
+      [37, 127],
+      [31, 121],
+      [-33, 18],
+      [-1, 37],
+      [30, 31],
+      [43, -79],
+      [19, -99],
+      [-34, -58],
+      [-36, 175],
+      [-31, 116],
+      [-27, 153],
+      [-33, 151],
+      [13, 100],
     ]) {
-      const end = geoPoint(lat, lon),
-        mid = origin.clone().add(end).normalize().multiplyScalar(2.5);
-      const curve = new T.QuadraticBezierCurve3(origin, mid, end);
-      globe.add(
-        new T.Line(
-          new T.BufferGeometry().setFromPoints(curve.getPoints(64)),
-          globeLine,
-        ),
+      const start = geoPoint(lat, lon),
+        mid = start.clone().add(hub).normalize().multiplyScalar(2.55);
+      const curve = new T.QuadraticBezierCurve3(start, mid, hub);
+      const geometry = new T.BufferGeometry().setFromPoints(
+        curve.getPoints(100),
       );
-      const point = new T.Mesh(
-        new T.SphereGeometry(0.028, 8, 8),
-        new T.MeshBasicMaterial({ color: 0xc5edff }),
+      geometry.setDrawRange(0, 0);
+      routes.push(geometry);
+      globe.add(new T.Line(geometry, globeLine));
+      const mesh = new T.Mesh(
+        new T.SphereGeometry(0.023, 8, 8),
+        new T.MeshBasicMaterial({ color: 0xe0f7ff }),
       );
-      point.position.copy(end);
-      globe.add(point);
+      globe.add(mesh);
+      couriers.push({ mesh, curve });
     }
+    const hubMarker = new T.Mesh(
+      new T.SphereGeometry(0.06, 16, 12),
+      new T.MeshBasicMaterial({ color: 0xffffff }),
+    );
+    hubMarker.position.copy(hub);
+    globe.add(hubMarker);
     universe.add(new T.AmbientLight(0x7a8eab, 0.4));
     const sun = new T.DirectionalLight(0xffe9d5, 2.1);
     sun.position.set(-4, 3, 5);
     universe.add(sun);
-    const planets = ["mars", "jupiter", "neptune"].map((name, i) => {
-      const planet = new T.Mesh(
-        new T.SphereGeometry(i === 1 ? 2.1 : 1.8, 80, 64),
-        new T.MeshStandardMaterial({
-          map: texture(`${name}.webp`),
-          roughness: 0.93,
-          metalness: 0,
-        }),
-      );
-      planet.rotation.z = i === 2 ? 0.4 : 0.1;
-      world.add(planet);
-      return planet;
-    });
-    const starPositions = new Float32Array(900 * 3);
-    let seed = 617;
-    const random = () => {
-      seed = (seed * 16807) % 2147483647;
-      return seed / 2147483647;
-    };
-    for (let i = 0; i < 900; i++) {
-      starPositions[i * 3] = (random() - 0.5) * 55;
-      starPositions[i * 3 + 1] = (random() - 0.5) * 34;
-      starPositions[i * 3 + 2] = -10 - random() * 25;
-    }
-    const starsMaterial = new T.PointsMaterial({
-      color: 0xa4b8d6,
-      size: 0.022,
-      transparent: true,
-      opacity: 0.65,
-    });
-    const stars = new T.Points(
-      new T.BufferGeometry().setAttribute(
-        "position",
-        new T.BufferAttribute(starPositions, 3),
-      ),
-      starsMaterial,
-    );
-    world.add(stars);
-    const deployCanvas = document.createElement("canvas");
-    deployCanvas.width = 1200;
-    deployCanvas.height = 675;
-    const context = deployCanvas.getContext("2d")!;
-    const deployTexture = new T.CanvasTexture(deployCanvas);
-    deployTexture.colorSpace = T.SRGBColorSpace;
-    textures.push(deployTexture);
-    const drawDeploy = (amount: number) => {
-      const clicked = amount >= 0.65;
-      context.fillStyle = "#080d13";
-      context.fillRect(0, 0, 1200, 675);
-      context.fillStyle = "#dbe5ed";
-      context.font = "500 21px Arial";
-      context.fillText("APEXWEB", 60, 60);
-      context.fillStyle = "#fff";
-      context.font = "500 67px Arial";
-      context.fillText(
-        clicked ? "A new chapter." : "Ready for the world.",
-        95,
-        258,
-      );
-      context.fillStyle = "#a2b1c1";
-      context.font = "27px Arial";
-      context.fillText(
-        clicked
-          ? "Let’s make it yours."
-          : "Your next beginning is one step away.",
-        98,
-        318,
-      );
-      context.fillStyle = clicked ? "#b7eadb" : "#dbeeff";
-      context.beginPath();
-      context.roundRect(98, 380, 230, 66, 33);
-      context.fill();
-      context.fillStyle = "#102032";
-      context.font = "24px Arial";
-      context.fillText(clicked ? "You’re live" : "Deploy", 148, 422);
-      const t = smooth(amount / 0.65),
-        x = mix(810, 244, t),
-        y = mix(515, 420, t);
-      context.fillStyle = "white";
-      context.strokeStyle = "#162433";
-      context.lineWidth = 2;
-      context.beginPath();
-      context.moveTo(x, y);
-      context.lineTo(x + 2, y + 31);
-      context.lineTo(x + 11, y + 23);
-      context.lineTo(x + 19, y + 38);
-      context.lineTo(x + 26, y + 34);
-      context.lineTo(x + 17, y + 20);
-      context.lineTo(x + 29, y + 18);
-      context.closePath();
-      context.fill();
-      context.stroke();
-      if (amount > 0.65 && amount < 0.95) {
-        context.strokeStyle = `rgba(170,235,255,${1 - (amount - 0.65) / 0.3})`;
-        context.lineWidth = 2;
-        context.beginPath();
-        context.arc(244, 420, 15 + (amount - 0.65) * 100, 0, Math.PI * 2);
-        context.stroke();
-      }
-      deployTexture.needsUpdate = true;
+    const solar = createSolarSystem(universe, texture);
+    // The live page itself is projected onto the laptop. The final camera pose
+    // makes this homography the identity, so there is no second image to fade in.
+    const projectPage = () => {
+      const panel = document.getElementById("screen-handoff"),
+        surface = panel?.querySelector<HTMLElement>(".handoff-surface");
+      if (!panel || !surface) return;
+      const width = root.clientWidth,
+        height = root.clientHeight,
+        scale = Math.min(4.55 / width, 2.56 / height);
+      const hw = (width * scale) / 2,
+        hh = (height * scale) / 2;
+      studio.updateMatrixWorld(true);
+      camera.updateMatrixWorld(true);
+      const points = [
+        [-hw, 1.54 + hh],
+        [hw, 1.54 + hh],
+        [hw, 1.54 - hh],
+        [-hw, 1.54 - hh],
+      ].map(([x, y]) => {
+        const v = new T.Vector3(x, y, 0.08)
+          .applyMatrix4(lid.matrixWorld)
+          .project(camera);
+        return { x: ((v.x + 1) * width) / 2, y: ((1 - v.y) * height) / 2 };
+      });
+      const [p0, p1, p2, p3] = points,
+        dx1 = p1.x - p2.x,
+        dx2 = p3.x - p2.x,
+        dx3 = p0.x - p1.x + p2.x - p3.x,
+        dy1 = p1.y - p2.y,
+        dy2 = p3.y - p2.y,
+        dy3 = p0.y - p1.y + p2.y - p3.y;
+      const denominator = dx1 * dy2 - dx2 * dy1;
+      if (Math.abs(denominator) < 0.001) return;
+      const g = (dx3 * dy2 - dx2 * dy3) / denominator,
+        h = (dx1 * dy3 - dx3 * dy1) / denominator;
+      const a = p1.x - p0.x + g * p1.x,
+        b = p3.x - p0.x + h * p3.x,
+        d = p1.y - p0.y + g * p1.y,
+        e = p3.y - p0.y + h * p3.y;
+      surface.style.transform = `matrix3d(${a / width},${d / width},0,${g / width},${b / height},${e / height},0,${h / height},0,0,1,0,${p0.x},${p0.y},0,1)`;
     };
     let mobile = false;
     const resize = () => {
@@ -496,109 +591,113 @@ export default function DeviceScene({
         desktopZ = mobile ? 21.5 : 12;
       if (p < 2 || p >= 8.3) {
         const closing = p >= 8.3,
-          opening = smooth(p / 1.15),
-          zoom = smooth((p - 0.95) / 1.05);
+          opening = smooth(p / 1.4),
+          zoom = clamp(p / 2);
         laptop.position.x =
           closing && !mobile ? mix(2, 0, smooth((p - 10) / 1)) : 0;
-        studio.background = new T.Color(closing ? "#020408" : "#171c20");
-        studio.environmentIntensity = closing ? 0.3 : 1;
-        key.intensity = closing ? 1.2 : 3.2;
-        rim.intensity = closing ? 1.3 : 4;
+        studio.background = new T.Color(0x000000);
+        wall.visible = closing;
+        if (studio.fog instanceof T.Fog) {
+          studio.fog.near = closing ? 23 : 12;
+          studio.fog.far = closing ? 65 : 26;
+        }
+        spotlight.intensity = closing ? 75 : 110;
+        beam.visible = !closing;
+        studio.environmentIntensity = closing ? 0.48 : 0.2;
+        key.intensity = closing ? 2 : 0.6;
+        rim.intensity = closing ? 0.6 : 0.35;
         renderer.toneMappingExposure = closing
-          ? mix(0.01, 1.2, smooth((p - 8.3) / 0.5))
+          ? mix(0.001, 1.05, smooth((p - 8.3) / 0.65))
           : 1.2;
         laptop.rotation.set(
           0,
-          closing ? 0 : mix(-1.05, 0, opening) + rotation.current * (1 - zoom),
+          closing ? 0 : mix(-0.65, 0, opening) + rotation.current * (1 - zoom),
           0,
         );
-        lid.rotation.x = closing
-          ? -0.07
-          : mix(Math.PI / 2 - 0.025, -0.07, opening);
-        seam.visible = !closing && p < 0.65;
-        floor.visible = reflection.visible = !closing;
-        desk.visible = closing;
-        screenLight.intensity = closing ? 3 : mix(2, 20, opening);
+        lid.rotation.x = closing ? 0 : mix(1.52, 0, opening);
+        seam.visible = false;
+        floor.visible = reflection.visible = true;
+        desk.visible = true;
+        screenLight.intensity = closing ? 0.5 : mix(0, 1.8, opening);
         if (!closing) {
           globe.visible = true;
           globe.position.set(0, 0, 0);
           globe.scale.setScalar(1);
-          globe.rotation.y = p * 0.3 + 2.2;
+          globe.rotation.y = 1.27;
           world.scale.setScalar(1);
           world.position.set(0, 0, 0);
-          planets.forEach((v) => (v.visible = false));
-          stars.visible = false;
+
+          solar.update(2, spaceCamera, mobile, rotation.current);
           renderer.setRenderTarget(displayTarget);
           renderer.render(universe, screenCamera);
           renderer.setRenderTarget(null);
-          screenMaterial.map = displayTarget.texture;
+          if (screenMaterial.map !== displayTarget.texture) {
+            screenMaterial.map = displayTarget.texture;
+            screenMaterial.needsUpdate = true;
+          }
           screenMaterial.color.setScalar(p < 0.12 ? 0 : 1);
           camera.position.set(
             0,
-            mix(3.2, 0.596, zoom),
-            mix(desktopZ, 2.71, zoom),
+            mix(5.0, 0.596, zoom),
+            mix(desktopZ, 2.88, zoom),
           );
           camera.lookAt(0, mix(-0.1, 0.596, zoom), -0.96);
         } else {
           const arrive = smooth((p - 8.3) / 0.65),
             zoomEnd = smooth((p - 10) / 1);
-          drawDeploy(clamp((p - 9.15) / 0.8));
-          screenMaterial.map = deployTexture;
-          screenMaterial.color.setScalar(1);
+          if (screenMaterial.map !== null) {
+            screenMaterial.map = null;
+            screenMaterial.needsUpdate = true;
+          }
+          screenMaterial.color.set("#080d13");
+          const panel = document.getElementById("screen-handoff");
+          if (panel) {
+            panel.dataset.deployed = String(p >= 9.67);
+            panel.style.setProperty(
+              "--surface-glare",
+              String(1 - smooth((p - 9.8) / 0.8)),
+            );
+            panel.style.opacity = String(smooth((p - 8.3) / 0.55));
+            const cursor = panel.querySelector<HTMLElement>(".surface-cursor");
+            const button = panel.querySelector<HTMLElement>(".published-pill");
+            if (cursor && button) {
+              const click = clamp((p - 9.15) / 0.52);
+              cursor.style.left = `${mix(root.clientWidth * 0.7, button.offsetLeft + button.offsetWidth * 0.6, smooth(click))}px`;
+              cursor.style.top = `${mix(root.clientHeight * 0.75, button.offsetTop + button.offsetHeight * 0.6, smooth(click))}px`;
+              cursor.style.opacity = String(1 - smooth((p - 9.7) / 0.35));
+            }
+          }
+          const endZ =
+            -0.84 +
+            Math.min((4.55 * root.clientHeight) / root.clientWidth, 2.56) /
+              (2 * Math.tan((19 * Math.PI) / 180));
           camera.position.set(
             0,
-            mix(1.4, 0.596, zoomEnd),
-            mix(desktopZ, 2.71, zoomEnd),
+            mix(1.4, 0.6, zoomEnd),
+            mix(desktopZ, endZ, zoomEnd),
           );
-          camera.lookAt(0, mix(-5, mix(0, 0.596, zoomEnd), arrive), -0.96);
+          camera.lookAt(0, mix(-5, mix(0, 0.6, zoomEnd), arrive), -0.96);
         }
+        glareMaterial.uniforms.amount.value = closing
+          ? 1 - smooth((p - 10) / 0.7)
+          : 1 - smooth((p - 1.3) / 0.7);
+        glassMaterial.opacity = 0.19 * glareMaterial.uniforms.amount.value;
         renderer.render(studio, camera);
+        if (closing) projectPage();
       } else {
-        renderer.toneMappingExposure = 1.2;
-        spaceCamera.position.set(
-          0,
-          0,
-          mobile ? mix(7, 11.5, smooth((p - 2) / 0.6)) : 7,
-        );
-        spaceCamera.lookAt(0, 0, 0);
-        globe.visible = p < 3.95;
-        stars.visible = p > 3.4;
-        const growth = smooth((p - 2) / 1.75);
-        globe.scale.setScalar(mix(1, 1.4, growth));
-        globe.position.set(
-          mobile ? 0 : mix(0, 2.0, smooth((p - 2) / 0.4)),
-          mobile ? mix(0, -0.95, smooth((p - 2) / 0.6)) : 0,
-          0,
-        );
-        globe.position.y += smooth((p - 3.4) / 0.55) * 10;
-        globe.rotation.y = 2.8 + (p - 2) * 0.8 + rotation.current;
-        planets.forEach((planet, i) => {
-          const delta = p - (4.5 + i * 1.25);
-          planet.visible = Math.abs(delta) < 1.1 || p >= 7.55;
-          planet.position.set(mobile ? 0 : 1.8, mobile ? -1 : 0, 0);
-          planet.position.y +=
-            delta < -0.4
-              ? -smooth((-delta - 0.4) / 0.65) * 9
-              : smooth((delta - 0.35) / 0.65) * 9;
-          planet.rotation.y = p * 0.28 + i * 2 + rotation.current;
-          if (p >= 7.55) {
-            const gather = smooth((p - 7.55) / 0.55);
-            const exitDelta = 7.55 - (4.5 + i * 1.25);
-            const exitY =
-              (mobile ? -1 : 0) + smooth((exitDelta - 0.35) / 0.65) * 9;
-            planet.position.set(
-              mix(mobile ? 0 : 1.8, (i - 1) * 4.2, gather),
-              mix(exitY, i === 1 ? 0.5 : -0.4, gather),
-              -i * gather,
-            );
-          }
+        renderer.toneMappingExposure = 1.1;
+        solar.update(p, spaceCamera, mobile, rotation.current);
+        globe.visible = p < 3.65;
+        globe.position.set(0, 0, 0);
+        globe.scale.setScalar(1);
+        globe.rotation.y =
+          1.27 + smooth((p - 2) / 1.4) * 1.85 + rotation.current;
+        routes.forEach((g, i) => {
+          const t = clamp((p - 2.12 - i * 0.023) / 0.85);
+          g.setDrawRange(0, Math.max(0, Math.floor(t * 101)));
+          couriers[i].mesh.visible = t > 0 && t < 1;
+          couriers[i].mesh.position.copy(couriers[i].curve.getPoint(t));
         });
-        const disappear = smooth((p - 7.55) / 0.7);
-        world.scale.setScalar(
-          p < 7.55 ? 1 : Math.max(0.0001, Math.pow(1 - disappear, 3)),
-        );
-        world.position.set(0, 0, p < 7.55 ? 0 : -disappear * 30);
-        starsMaterial.opacity = (1 - disappear) * 0.65;
         renderer.render(universe, spaceCamera);
       }
       if (!announced && assetsReady) {
@@ -639,6 +738,7 @@ export default function DeviceScene({
       geometries.forEach((g) => g.dispose());
       materials.forEach((m) => m.dispose());
       textures.forEach((t) => t.dispose());
+      solar.dispose();
       reflection.dispose();
       displayTarget.dispose();
       environmentAbort.abort();

@@ -1,3 +1,4 @@
+import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import type { GetStaticPaths, GetStaticProps } from "next";
@@ -28,16 +29,19 @@ export default function Concept({
 }) {
   return (
     <>
+      <Head>
+        <meta name="robots" content="noindex, follow" />
+      </Head>
       <SEO
         title={`${concept.title} — APEXWEB demo build`}
         description={concept.description}
       />
       <section className="container concept-page">
-        <Link href="/#work" className="text-link">
-          ← Back to example work
+        <Link href="/#packages" className="text-link">
+          ← Explore website packages
         </Link>
         <p className="eyebrow" style={{ marginTop: 35 }}>
-          DEMO BUILD · DESIGN EXPLORATION
+          ARCHIVED CONCEPT · DESIGN EXPLORATION
         </p>
         <h1>{concept.title}</h1>
         <p>
