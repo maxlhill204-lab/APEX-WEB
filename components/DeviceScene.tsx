@@ -360,9 +360,9 @@ export default function DeviceScene({
     const floorMaterial = new T.MeshStandardMaterial({
       map: marble,
       normalMap: normal,
-      normalScale: new T.Vector2(0.065, 0.065),
+      normalScale: new T.Vector2(0.12, 0.12),
       color: 0x1d2024,
-      roughness: 0.54,
+      roughness: 0.66,
       metalness: 0.08,
       transparent: true,
       opacity: 0.997,
@@ -581,6 +581,7 @@ export default function DeviceScene({
       frame = requestAnimationFrame(render);
       if (!assetsReady || !visible || document.hidden) return;
       current =
+        progress.current >= 7.8 ? progress.current :
         Math.abs(progress.current - current) < 0.001
           ? progress.current
           : mix(current, progress.current, 0.16);
@@ -589,6 +590,16 @@ export default function DeviceScene({
       previous = current;
       const p = current,
         desktopZ = mobile ? 21.5 : 12;
+      const handoff = document.getElementById("screen-handoff");
+      const handoffSurface = handoff?.querySelector<HTMLElement>(".handoff-surface");
+      const curtain = document.querySelector<HTMLElement>(".cinema-curtain");
+      if (curtain) curtain.style.opacity = String(p < 8.3 ? clamp((p - 7.98) / 0.32) : 1 - clamp((p - 8.3) / 0.5));
+      if (handoff && handoffSurface) {
+        // Keep the page out of document scrolling until the camera has arrived.
+        handoffSurface.style.position = p < 11 ? "fixed" : "absolute";
+        handoff.style.pointerEvents = p >= 11 ? "auto" : "none";
+        if (p < 8.3) handoff.style.visibility = "hidden";
+      }
       if (p < 2 || p >= 8.3) {
         const closing = p >= 8.3,
           opening = smooth(p / 1.4),
@@ -681,9 +692,13 @@ export default function DeviceScene({
         glareMaterial.uniforms.amount.value = closing
           ? 1 - smooth((p - 10) / 0.7)
           : 1 - smooth((p - 1.3) / 0.7);
-        glassMaterial.opacity = 0.19 * glareMaterial.uniforms.amount.value;
+        glassMaterial.opacity = (closing ? 0.035 : 0.19) * glareMaterial.uniforms.amount.value;
         renderer.render(studio, camera);
-        if (closing) projectPage();
+        if (closing) {
+          projectPage();
+          // Reveal only after this frame has its matching screen projection.
+          if (handoff) handoff.style.visibility = "visible";
+        }
       } else {
         renderer.toneMappingExposure = 1.1;
         solar.update(p, spaceCamera, mobile, rotation.current);

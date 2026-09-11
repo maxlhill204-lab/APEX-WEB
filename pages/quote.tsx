@@ -37,7 +37,8 @@ export default function Quote(props: Props) {
   const [selection, setSelection] = useState(props.initialPackage),
     [step, setStep] = useState(0);
   const index = packages.findIndex((p) => p.id === selection),
-    plan = packages[index];
+    plan = packages[index],
+    visual = selection === "custom" ? 3 : selection === "unsure" ? 4 : Math.max(index, 0);
   return (
     <>
       <SEO
@@ -57,7 +58,7 @@ export default function Quote(props: Props) {
               <span>chapter.</span>
             </h1>
             <div className="quote-orbit">
-              <PackageAtom level={Math.max(index, 0)} compact />
+              <PackageAtom level={visual} compact />
             </div>
             <div className="quote-guidance" key={step}>
               <span className="quote-stage-number">0{step + 1} / 05</span>
@@ -67,7 +68,7 @@ export default function Quote(props: Props) {
             <div className="quote-selection-summary" aria-live="polite">
               <span className="eyebrow">YOUR STARTING POINT</span>
               <div>
-                <strong>{plan?.name || "Let’s find your fit"}</strong>
+                <strong>{plan?.name || (selection === "custom" ? "Custom project" : "Help me decide")}</strong>
                 <span>
                   {plan ? `From $${plan.price} AUD` : "Tailored to you"}
                 </span>
@@ -122,7 +123,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({
     props: {
       initialPackage: packageIds.includes(get("package"))
         ? get("package")
-        : "unsure",
+        : "business",
       initialCare: carePlans.some((p) => p.id === get("care"))
         ? get("care")
         : "unsure",

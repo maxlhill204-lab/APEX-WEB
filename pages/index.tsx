@@ -1,6 +1,5 @@
 import { SEO } from "@/components/SEO";
 import { ImmersiveShowcase } from "@/components/ImmersiveShowcase";
-import { PackageExperience } from "@/components/PackageExperience";
 import { RocketExperience } from "@/components/RocketExperience";
 import { site } from "@/site.config";
 export default function Home() {
@@ -62,7 +61,6 @@ export default function Home() {
           <div className="surface-glare" aria-hidden="true" />
         </div>
       </section>
-      <PackageExperience />
       <RocketExperience />
     </>
   );

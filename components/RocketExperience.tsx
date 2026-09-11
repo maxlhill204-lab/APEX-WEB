@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { PackageExperience } from "./PackageExperience";
 import { carePlans, site } from "@/site.config";
 const RocketScene = dynamic(() => import("./RocketScene"), { ssr: false });
 const clamp = (v: number) => Math.max(0, Math.min(1, v));
@@ -9,7 +10,9 @@ export function RocketExperience() {
     progress = useRef(0);
   const [enabled, setEnabled] = useState(false),
     [yearly, setYearly] = useState(true),
-    [nearby, setNearby] = useState(false);
+    [nearby, setNearby] = useState(false),
+    [selected, setSelected] = useState(0);
+  const bucket = useRef(-1);
   useEffect(() => {
     const el = root.current;
     if (!el) return;
@@ -46,8 +49,24 @@ export function RocketExperience() {
         return;
       }
       const r = el.getBoundingClientRect(),
-        p = clamp(-r.top / (r.height - innerHeight));
+        timeline = clamp(-r.top / (r.height - innerHeight)),
+        p = Math.max(-0.1, (timeline - 0.36) / 0.64);
       progress.current = p;
+      const nextBucket = Math.min(2, Math.floor(timeline / 0.11));
+      if (nextBucket !== bucket.current) {
+        bucket.current = nextBucket;
+        setSelected(nextBucket);
+      }
+      const launch = clamp((p - 0.045) / 0.115);
+      el.style.setProperty("--launch", String(launch));
+      const packages = el.querySelector<HTMLElement>(".launch-packages");
+      if (packages) {
+        packages.style.transform = `translateY(${launch * innerHeight * 1.2}px)`;
+        packages.style.visibility = p < 0.18 ? "visible" : "hidden";
+        packages.inert = p >= 0.02;
+      }
+      el.classList.toggle("launch-active", p >= 0);
+      el.classList.toggle("ending-active", p > 0.84);
       document.documentElement.classList.toggle(
         "paper-scene",
         p > 0.42 && r.top < 0 && r.bottom > 0,
@@ -56,7 +75,7 @@ export function RocketExperience() {
       el.style.setProperty("--paper", String(clamp((p - 0.28) / 0.24)));
       el.querySelectorAll<HTMLElement>("[data-phase]").forEach((node, i) => {
         const intervals = [
-            [0.02, 0.3],
+            [0.13, 0.32],
             [0.4, 0.68],
             [0.73, 1.2],
           ],
@@ -64,9 +83,9 @@ export function RocketExperience() {
         const alpha =
           clamp((p - a) / 0.07) * (1 - clamp((p - b + 0.06) / 0.06));
         if (i === 0) {
-          node.style.opacity = String(clamp((p - 0.02) / 0.07));
-          node.style.visibility = p > 0.02 && p < 0.45 ? "visible" : "hidden";
-          node.style.transform = `translateY(${Math.max(0, p - 0.1) * innerHeight * 4.7}px)`;
+          node.style.opacity = String(clamp((p - 0.193) / 0.05));
+          node.style.visibility = p > 0.13 && p < 0.45 ? "visible" : "hidden";
+          node.style.transform = `translateY(${Math.max(0, p - 0.19) * innerHeight * 4.7}px)`;
           return;
         }
         node.style.opacity = String(alpha);
@@ -91,10 +110,15 @@ export function RocketExperience() {
     <section
       className={`rocket-journey ${enabled ? "" : "rocket-static"}`}
       ref={root}
+      id="start"
       aria-label="Launch specifications and ongoing care"
     >
+      <span id="packages" className="launch-anchor" aria-hidden="true" />
       <div className="rocket-sticky">
         <div className="rocket-paper" />
+        <div className="launch-packages">
+          <PackageExperience selected={selected} onSelect={setSelected} />
+        </div>
         {enabled && nearby && <RocketScene progress={progress} />}
         <div className="rocket-flight" data-phase>
           <span className="eyebrow">BUILT FOR WHAT COMES NEXT</span>
@@ -202,6 +226,7 @@ export function RocketExperience() {
                     : "Billed monthly"}
                 </span>
                 <p>{c.description}</p>
+                <span className="care-action">Explore this care plan ↗</span>
               </Link>
             ))}
           </div>
@@ -210,9 +235,10 @@ export function RocketExperience() {
             Domains, provider usage and transaction fees are separate. Update
             allowances and supported integrations are agreed in your quote.
           </p>
-          <Link className="button" href="/quote">
+          <Link className="button ending-cta" href="/quote">
             Let’s build your next chapter ↗
           </Link>
+          <p className="ending-next">Your next step: tell us what you’re building. No payment today.</p>
           <div className="mission-end">
             <a href={`mailto:${site.email}`}>{site.email}</a>
             <span>APEXWEB © {new Date().getFullYear()}</span>

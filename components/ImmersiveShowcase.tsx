@@ -101,18 +101,6 @@ export function ImmersiveShowcase() {
           el.style.visibility = enter * (1 - leave) > 0 ? "visible" : "hidden";
           el.style.transform = `translate3d(${index === 4 ? -leave * 45 : 0}vw,${(1 - enter) * 50 - leave * 90}px,0)`;
         });
-      const curtain = root.querySelector<HTMLElement>(".cinema-curtain");
-      if (curtain)
-        curtain.style.opacity = String(
-          p < 8.3 ? clamp((p - 7.98) / 0.32) : 1 - clamp((p - 8.3) / 0.5),
-        );
-      const handoff = document.getElementById("screen-handoff");
-      if (handoff) {
-        const top = root.offsetTop + root.offsetHeight - innerHeight - scrollY;
-        handoff.style.transform = `translateY(${-Math.max(0, top)}px)`;
-        handoff.style.pointerEvents = p >= 10.99 ? "auto" : "none";
-        handoff.style.visibility = p >= 8.3 ? "visible" : "hidden";
-      }
       const stage = root.querySelector<HTMLElement>(".cinema-stage");
       if (stage)
         stage.style.filter = `blur(${p > 1.1 && p < 2 ? clamp((p - 1.1) / 0.9) * 9 : 0}px)`;

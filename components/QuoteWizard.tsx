@@ -377,6 +377,7 @@ export function QuoteWizard({
                   <input
                     type="radio"
                     name="package"
+                    value={id}
                     checked={lead.package === id}
                     onChange={() => update("package", id)}
                   />

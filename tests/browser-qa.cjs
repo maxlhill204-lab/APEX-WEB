@@ -56,7 +56,7 @@ fs.mkdirSync(qaOutput, { recursive: true });
   await page.locator(".cinema-renderer").focus();
   await page.keyboard.press("ArrowRight");
   report.flows.push("Keyboard model rotation");
-  await page.locator("#start").scrollIntoViewIfNeeded();
+  await page.locator("#start").evaluate(e => e.scrollIntoView({block:"start", behavior:"instant"}));
   await page
     .getByRole("button", { name: /03 \/ CINEMATIC Growth Site/ })
     .click();
@@ -65,12 +65,11 @@ fs.mkdirSync(qaOutput, { recursive: true });
       "The full experience. Cinematic 3D, scroll-driven storytelling and connected business tools.",
     )
     .waitFor();
-  await page.getByRole("button", { name: "Build my growth site" }).click();
-  await page.locator('input[value="growth"]').waitFor();
-  if (!(await page.locator('input[value="growth"]').isChecked()))
-    throw Error("Inline package selection lost");
-  report.flows.push("Interactive packages and inline preselected enquiry");
-  await page.getByRole("button", { name: "Close enquiry" }).click();
+  await page.getByRole("link", { name: "Build my growth site" }).click();
+  await page.locator('input[value="business"]').waitFor();
+  if (!(await page.locator('input[value="business"]').isChecked()))
+    throw Error("Quote must open on Local Business");
+  report.flows.push("Selectable packages lead to Local Business quote default");
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole("button", { name: "Open menu" }).click();
   await page.getByRole("dialog").waitFor();

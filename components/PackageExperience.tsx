@@ -1,20 +1,15 @@
-import { useRef, useState } from "react";
-import { ArrowUpRight, Check, X } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, Check } from "lucide-react";
 import { packages } from "@/site.config";
 import { PackageAtom } from "./PackageAtom";
-import { QuoteWizard } from "./QuoteWizard";
-export function PackageExperience() {
-  const [selected, setSelected] = useState(1),
-    [enquiry, setEnquiry] = useState(false);
-  const form = useRef<HTMLDivElement>(null);
+export function PackageExperience({selected, onSelect}: {selected: number; onSelect: (index: number) => void}) {
   const plan = packages[selected];
   return (
     <section
       className={`mission-packages selected-level-${selected}`}
-      id="start"
     >
       <div className="mission-aura" aria-hidden="true" />
-      <div className="mission-heading" id="packages">
+      <div className="mission-heading">
         <span className="eyebrow">
           YOUR WEBSITE. YOUR LEVEL OF POSSIBILITY.
         </span>
@@ -26,7 +21,7 @@ export function PackageExperience() {
         </p>
       </div>
       <p className="package-instruction">
-        Choose a package to explore what’s included{" "}
+        Scroll to explore · or select a package{" "}
         <span aria-hidden="true">↓</span>
       </p>
       <div
@@ -40,8 +35,7 @@ export function PackageExperience() {
             className={i === selected ? "active" : ""}
             aria-pressed={i === selected}
             onClick={() => {
-              setSelected(i);
-              setEnquiry(false);
+              onSelect(i);
             }}
           >
             <span className="mission-number">
@@ -84,40 +78,15 @@ export function PackageExperience() {
               </li>
             ))}
           </ul>
-          <button
-            className="button"
-            onClick={() => {
-              setEnquiry(true);
-              setTimeout(
-                () =>
-                  form.current?.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start",
-                  }),
-                50,
-              );
-            }}
-          >
+          <Link className="button" href="/quote">
             Build my {plan.name.toLowerCase()} <ArrowUpRight size={18} />
-          </button>
+          </Link>
           <p className="mission-note">
             Final scope and price agreed before work begins. Hosting and
             third-party service fees are separate.
           </p>
         </div>
       </div>
-      {enquiry && (
-        <div className="mission-enquiry" ref={form}>
-          <button className="text-link" onClick={() => setEnquiry(false)}>
-            <X size={16} /> Close enquiry
-          </button>
-          <QuoteWizard
-            key={plan.id}
-            initialPackage={plan.id}
-            attribution={{ source: "cinematic-package" }}
-          />
-        </div>
-      )}
       <div className="mission-foot">
         <span>One build. Yours to keep.</span>
         <span>Ongoing care? That’s your choice. ↓</span>

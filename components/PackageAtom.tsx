@@ -6,6 +6,24 @@ export function PackageAtom({
   level: number;
   compact?: boolean;
 }) {
+  if (level >= 3) return (
+    <div className={`mission-art decision-art ${compact ? "atom-compact" : ""}`} aria-hidden="true">
+      <div className="atom-halo" />
+      {level === 3 ? <div className="custom-constellation">
+        <span className="custom-core">✦</span>
+        {Array.from({length: 6}, (_, i) => <i key={i} style={{"--tile": i} as CSSProperties} />)}
+        <span className="decision-caption">BUILT BEYOND THE TEMPLATE</span>
+      </div> : <div className="choice-compass">
+        <div className="compass-sweep" />
+        <span className="compass-core">✧</span>
+        <i className="compass-choice choice-a">01</i>
+        <i className="compass-choice choice-b">02</i>
+        <i className="compass-choice choice-c">03</i>
+        <span className="decision-caption">LET’S FIND YOUR DIRECTION</span>
+      </div>}
+      <div className="atom-reflection" />
+    </div>
+  );
   return (
     <div
       className={`mission-art atom-level-${level} ${compact ? "atom-compact" : ""}`}

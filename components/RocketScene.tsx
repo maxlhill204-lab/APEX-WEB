@@ -195,6 +195,22 @@ export default function RocketScene({
       visible = false,
       frame = 0,
       previous = -1;
+    let environment: T.DataTexture | undefined;
+    const environmentAbort = new AbortController();
+    fetch("/cinematic/studio-environment.bin.gz", {signal: environmentAbort.signal})
+      .then(async response => {
+        if (!response.ok || !response.body) return;
+        const buffer = await new Response(response.body.pipeThrough(new DecompressionStream("gzip"))).arrayBuffer();
+        if (environmentAbort.signal.aborted) return;
+        environment = new T.DataTexture(new Uint16Array(buffer), 336, 256, T.RGBAFormat, T.HalfFloatType);
+        environment.mapping = T.CubeUVReflectionMapping;
+        environment.minFilter = environment.magFilter = T.LinearFilter;
+        environment.colorSpace = T.LinearSRGBColorSpace;
+        environment.needsUpdate = true;
+        scene.environment = environment;
+        scene.environmentIntensity = 0.65;
+        previous = -1;
+      }).catch(() => { /* Direct studio lights remain available offline. */ });
     const resize = () => {
       mobile = root.clientWidth < 700;
       renderer.setSize(root.clientWidth, root.clientHeight);
@@ -223,7 +239,7 @@ export default function RocketScene({
       const schematic = smooth((p - 0.32) / 0.2);
       rocket.position.set(
         T.MathUtils.lerp(0, mobile ? -9 : -5.5, smooth((p - 0.65) / 0.12)),
-        T.MathUtils.lerp(-3, 0, smooth(p / 0.22)),
+        T.MathUtils.lerp(-15, 0, smooth(p / 0.13)),
         0,
       );
       rocket.rotation.y = T.MathUtils.lerp(p * 7, 0.25, schematic);
@@ -252,7 +268,7 @@ export default function RocketScene({
         line.position.y = 25 - ((p * speed + i * 3.71) % 50);
         line.material.opacity =
           (1 - smooth((p - 0.27) / 0.12)) * (depth === 0 ? 0.45 : 0.3);
-        line.visible = p < 0.4;
+        line.visible = p > 0.08 && p < 0.4;
       });
       renderer.render(scene, camera);
     };
@@ -273,6 +289,8 @@ export default function RocketScene({
       });
       geos.forEach((g) => g.dispose());
       mats.forEach((m) => m.dispose());
+      environmentAbort.abort();
+      environment?.dispose();
       labelTexture.dispose();
       renderer.dispose();
       renderer.domElement.remove();
