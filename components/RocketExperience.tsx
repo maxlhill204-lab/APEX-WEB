@@ -2,7 +2,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { PackageExperience } from "./PackageExperience";
-import { carePlans, site } from "@/site.config";
+import { carePlans, packages, site } from "@/site.config";
 const RocketScene = dynamic(() => import("./RocketScene"), { ssr: false });
 const clamp = (v: number) => Math.max(0, Math.min(1, v));
 export function RocketExperience() {
@@ -199,7 +199,7 @@ export function RocketExperience() {
           className="rocket-care"
           data-phase
           role="region"
-          aria-label="Hosting plans and contact details"
+          aria-label="Website purchase and ongoing care pricing"
           tabIndex={0}
         >
           <span className="eyebrow">KEEP YOUR WEBSITE IN GOOD HANDS</span>
@@ -208,8 +208,19 @@ export function RocketExperience() {
             <br />
             Looked after.
           </h2>
+          <div className="care-purchase">
+            <span className="care-step">01 / BUY YOUR WEBSITE · ONE-OFF</span>
+            <p>A one-off build fee. Your website, designed and built for you.</p>
+            <div className="care-build-prices">
+              {packages.map((p) => (
+                <span key={p.id}>{p.name}<strong>From ${p.price.toLocaleString("en-AU")}</strong></span>
+              ))}
+            </div>
+          </div>
+          <span className="care-step">02 / CHOOSE ONGOING CARE</span>
           <p>
-            Optional hosting and maintenance, matched to the features we manage.
+            After your build, add optional hosting and maintenance. Pay monthly
+            or yearly, separately from your one-off website fee.
           </p>
           <div
             className="billing-toggle"
@@ -244,8 +255,12 @@ export function RocketExperience() {
               </Link>
             ))}
           </div>
+          <p className="care-custom">
+            Need a different level of support? <Link href="/quote?source=custom-maintenance">Custom care, priced to your needs ↗</Link>
+          </p>
           <p className="care-scope">
-            AUD. Annual billing is 25% less than twelve monthly payments.
+            All prices in AUD. Build prices are starting prices; custom care is
+            quoted to scope. Annual billing is 25% less than twelve monthly payments.
             Domains, provider usage and transaction fees are separate. Update
             allowances and supported integrations are agreed in your quote.
           </p>
@@ -256,7 +271,7 @@ export function RocketExperience() {
           <div className="finale-invitation">
             <span className="eyebrow">A WEBSITE THAT’S YOURS</span>
             <h2><Link href="/quote">Let’s build<br />your next<br /><span>chapter. <i aria-hidden="true">↗</i></span></Link></h2>
-            <p>Tell us what you have in mind.</p>
+            <p>A one-off build from ${packages[0].price} AUD.<br />Optional care from ${carePlans[0].price}/month or ${carePlans[0].annual}/year. Custom care quoted.</p>
             <Link className="finale-start" href="/quote">Start my project <span aria-hidden="true">↗</span></Link>
             <small>No payment today. A clear scope before we begin.</small>
           </div>

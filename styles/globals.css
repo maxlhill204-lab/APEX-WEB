@@ -4307,3 +4307,18 @@ body {
 
 .finale-invitation { opacity:var(--final-enter,0); }
 @media(max-width:699px) { .rocket-flight { max-width:65%; } .rocket-flight h2 { font-size:clamp(36px,10.8vw,48px); } .rocket-flight p { font-size:12px; } }
+
+/* Separate the website purchase from optional ongoing care. */
+.care-step { display:block; font-size:10px; font-weight:600; letter-spacing:.12em; color:#65543e; }
+.care-purchase { border-bottom:1px solid #aa967a60; padding-bottom:17px; margin-bottom:19px; }
+.care-purchase p { color:#716351; font-size:12px; line-height:1.6; margin:8px 0 12px; }
+.care-build-prices { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; }
+.care-build-prices > span { font-size:11px; color:#65543e; }
+.care-build-prices strong { display:block; margin-top:5px; font-size:17px; font-weight:500; color:#443a2d; }
+.rocket-care > p.care-custom { font-size:11px; line-height:1.7; margin-top:16px; }
+.care-custom a { text-decoration:underline; text-underline-offset:3px; }
+.finale-invitation p { line-height:1.7; max-width:510px; margin-left:auto; margin-right:auto; }
+@media(max-width:600px) { .care-build-prices { gap:9px; } .care-build-prices > span { font-size:10px; } .care-build-prices strong { font-size:15px; } .finale-invitation p { max-width:310px; } }
+
+.rocket-care h2 { font-size:clamp(28px,3vw,44px); margin:16px 0 22px; }
+.care-build-prices { margin-top:12px; }
