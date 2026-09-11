@@ -25,7 +25,7 @@ const fs = require("fs");
       await page.evaluate((p) => {
         const e = document.querySelector(".rocket-journey");
         scrollTo({
-          top: e.offsetTop + (e.offsetHeight - innerHeight) * (0.36 + p * 0.64),
+          top: e.offsetTop + (1.35 + ((e.offsetHeight - innerHeight) / innerHeight - 1.35) * p / 1.3) * innerHeight,
           behavior: "instant",
         });
       }, p);

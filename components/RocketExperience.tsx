@@ -42,6 +42,7 @@ export function RocketExperience() {
     const update = () => {
       frame = 0;
       if (!enabled) {
+        el.querySelectorAll<HTMLElement>("[data-phase],.launch-packages,.rocket-finale").forEach(node => { node.inert = false; });
         document.documentElement.classList.toggle(
           "paper-scene",
           el.getBoundingClientRect().top < 0,
@@ -49,10 +50,11 @@ export function RocketExperience() {
         return;
       }
       const r = el.getBoundingClientRect(),
-        timeline = clamp(-r.top / (r.height - innerHeight)),
-        p = Math.max(-0.1, (timeline - 0.36) / 0.64);
+        distance = Math.max(0, -r.top / innerHeight),
+        travel = (r.height - innerHeight) / innerHeight,
+        p = Math.max(-0.1, ((distance - 1.35) / (travel - 1.35)) * 1.3);
       progress.current = p;
-      const nextBucket = Math.min(2, Math.floor(timeline / 0.11));
+      const nextBucket = Math.min(2, Math.floor(distance / 0.45));
       if (nextBucket !== bucket.current) {
         bucket.current = nextBucket;
         setSelected(nextBucket);
@@ -66,7 +68,17 @@ export function RocketExperience() {
         packages.inert = p >= 0.02;
       }
       el.classList.toggle("launch-active", p >= 0);
-      el.classList.toggle("ending-active", p > 0.84);
+      const finalEnter = clamp((p - 1.08) / 0.18);
+      const finalEase = finalEnter * finalEnter * (3 - 2 * finalEnter);
+      el.style.setProperty("--final-enter", String(finalEase));
+      const finale = el.querySelector<HTMLElement>(".rocket-finale");
+      if (finale) {
+        finale.style.visibility = p > 1 ? "visible" : "hidden";
+        finale.style.opacity = String(clamp((p - 1) / 0.07));
+        finale.inert = finalEnter < 0.8;
+      }
+      const renderer = el.querySelector<HTMLElement>(".rocket-renderer");
+      if (renderer) renderer.style.opacity = String(1 - clamp((p - 0.98) / 0.12));
       document.documentElement.classList.toggle(
         "paper-scene",
         p > 0.42 && r.top < 0 && r.bottom > 0,
@@ -75,22 +87,24 @@ export function RocketExperience() {
       el.style.setProperty("--paper", String(clamp((p - 0.28) / 0.24)));
       el.querySelectorAll<HTMLElement>("[data-phase]").forEach((node, i) => {
         const intervals = [
-            [0.13, 0.32],
+            [0.11, 0.38],
             [0.4, 0.68],
-            [0.73, 1.2],
+            [0.73, 1.1],
           ],
           [a, b] = intervals[i];
         const alpha =
           clamp((p - a) / 0.07) * (1 - clamp((p - b + 0.06) / 0.06));
         if (i === 0) {
-          node.style.opacity = String(clamp((p - 0.193) / 0.05));
-          node.style.visibility = p > 0.13 && p < 0.45 ? "visible" : "hidden";
-          node.style.transform = `translateY(${Math.max(0, p - 0.19) * innerHeight * 4.7}px)`;
+          node.style.opacity = String(clamp((p - 0.11) / 0.035));
+          node.style.visibility = p > 0.11 && p < 0.43 ? "visible" : "hidden";
+          const depart = clamp((p - 0.29) / 0.13);
+          node.style.transform = `translateY(${depart * depart * innerHeight * 1.25}px)`;
           return;
         }
         node.style.opacity = String(alpha);
         node.style.visibility = alpha > 0.01 ? "visible" : "hidden";
-        node.style.transform = `translateY(${(1 - clamp((p - a) / 0.07)) * 30}px)`;
+        node.style.transform = `translateY(${(1 - clamp((p - a) / 0.07)) * 30 - (i === 2 ? clamp((p - 0.99) / 0.12) * 180 : 0)}px)`;
+        node.inert = alpha < 0.1;
       });
     };
     const schedule = () => {
@@ -235,10 +249,17 @@ export function RocketExperience() {
             Domains, provider usage and transaction fees are separate. Update
             allowances and supported integrations are agreed in your quote.
           </p>
-          <Link className="button ending-cta" href="/quote">
-            Let’s build your next chapter ↗
-          </Link>
-          <p className="ending-next">Your next step: tell us what you’re building. No payment today.</p>
+          <p className="care-continue">Your next chapter is just below ↓</p>
+        </div>
+        <div className="rocket-finale">
+          <div className="finale-light" aria-hidden="true" />
+          <div className="finale-invitation">
+            <span className="eyebrow">A WEBSITE THAT’S YOURS</span>
+            <h2><Link href="/quote">Let’s build<br />your next<br /><span>chapter. <i aria-hidden="true">↗</i></span></Link></h2>
+            <p>Tell us what you have in mind.</p>
+            <Link className="finale-start" href="/quote">Start my project <span aria-hidden="true">↗</span></Link>
+            <small>No payment today. A clear scope before we begin.</small>
+          </div>
           <div className="mission-end">
             <a href={`mailto:${site.email}`}>{site.email}</a>
             <span>APEXWEB © {new Date().getFullYear()}</span>

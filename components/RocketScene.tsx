@@ -238,7 +238,7 @@ export default function RocketScene({
       previous = p;
       const schematic = smooth((p - 0.32) / 0.2);
       rocket.position.set(
-        T.MathUtils.lerp(0, mobile ? -9 : -5.5, smooth((p - 0.65) / 0.12)),
+        T.MathUtils.lerp(0, mobile ? -9 : -5.5, smooth((p - 0.65) / 0.12)) + (mobile ? 2.6 * (1 - schematic) : 0),
         T.MathUtils.lerp(-15, 0, smooth(p / 0.13)),
         0,
       );
