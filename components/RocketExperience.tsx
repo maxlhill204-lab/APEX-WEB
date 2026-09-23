@@ -219,19 +219,19 @@ export function RocketExperience() {
           </div>
           <span className="care-step">02 / CHOOSE ONGOING CARE</span>
           <p>
-            After your build, add optional hosting and maintenance. Pay monthly
-            or yearly, separately from your one-off website fee.
+            After your build, add optional hosting and maintenance. Every plan
+            below is shown as a monthly cost so the value is easy to compare.
           </p>
           <div
             className="billing-toggle"
             role="group"
             aria-label="Hosting billing period"
           >
-            <button aria-pressed={!yearly} onClick={() => setYearly(false)}>
-              Monthly
-            </button>
             <button aria-pressed={yearly} onClick={() => setYearly(true)}>
-              Yearly <span>Save 25%</span>
+              Pay annually <span>Save 25%</span>
+            </button>
+            <button aria-pressed={!yearly} onClick={() => setYearly(false)}>
+              Pay monthly
             </button>
           </div>
           <div className="rocket-care-plans">
@@ -242,13 +242,13 @@ export function RocketExperience() {
               >
                 <span>{c.name}</span>
                 <strong>
-                  ${yearly ? c.annual.toLocaleString("en-AU") : c.price}
-                  <small>/{yearly ? "year" : "month"}</small>
+                  ${yearly ? (c.annual / 12).toFixed(2) : c.price.toLocaleString("en-AU")}
+                  <small>/month</small>
                 </strong>
                 <span>
                   {yearly
-                    ? `$${(c.annual / 12).toFixed(2)}/mo equivalent · paid annually`
-                    : "Billed monthly"}
+                    ? `Paid annually: $${c.annual.toLocaleString("en-AU")}/year · save $${(c.price * 12 - c.annual).toLocaleString("en-AU")}`
+                    : `$${(c.price * 12).toLocaleString("en-AU")}/year if kept for 12 months`}
                 </span>
                 <p>{c.description}</p>
                 <span className="care-action">Explore this care plan ↗</span>
@@ -259,10 +259,11 @@ export function RocketExperience() {
             Need a different level of support? <Link href="/quote?source=custom-maintenance">Custom care, priced to your needs ↗</Link>
           </p>
           <p className="care-scope">
-            All prices in AUD. Build prices are starting prices; custom care is
-            quoted to scope. Annual billing is 25% less than twelve monthly payments.
-            Domains, provider usage and transaction fees are separate. Update
-            allowances and supported integrations are agreed in your quote.
+            All prices are AUD. Build prices are starting prices and we confirm
+            the final scope before work begins. “Small update” means a text,
+            image or link change—not a new page, design or feature. Domains,
+            provider usage, transaction fees and work outside the listed care
+            allowance are separate and quoted before we proceed.
           </p>
           <p className="care-continue">Your next chapter is just below ↓</p>
         </div>

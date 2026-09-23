@@ -126,15 +126,21 @@ async function call(
     assert.equal((await call(valid)).status, 503);
     results.push("failed database write never reports success");
     globalThis.fetch = async () => new Response("{}", { status: 200 });
+    assert.equal((await call(valid)).status, 503);
+    results.push("stored lead never reports success when email is not configured");
+    process.env.RESEND_API_KEY = "qa-resend";
+    let emailCalls = 0;
+    globalThis.fetch = async (input) => {
+      const url = String(input);
+      emailCalls++;
+      return new Response("{}", { status: url.includes("api.resend.com") ? 200 : 409 });
+    };
     const accepted = await call(valid);
     assert.equal(accepted.status, 200);
-    assert.equal(accepted.result.confirmationSent, false);
-    results.push("accepted write returns reference without claiming email");
-    globalThis.fetch = async () => new Response("{}", { status: 409 });
-    assert.equal(
-      (await call(valid)).result.reference,
-      accepted.result.reference,
-    );
+    assert.equal(accepted.result.confirmationSent, true);
+    assert.equal(emailCalls, 3);
+    results.push("accepted business email and customer confirmation return success");
+    assert.equal((await call(valid)).result.reference, accepted.result.reference);
     results.push("retry uses same deterministic document identity");
     console.log(JSON.stringify({ passed: results.length, results }, null, 2));
   } finally {

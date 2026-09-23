@@ -4275,8 +4275,8 @@ body {
 #start, #packages { scroll-margin-top: -110px; }
 
 /* Faster comparison, a readable flight chapter, and a dedicated final invitation. */
-.rocket-journey:not(.rocket-static) { height:1200svh; }
-@media(max-width:699px) { .rocket-journey:not(.rocket-static) { height:1450svh; } }
+.rocket-journey:not(.rocket-static) { height:980svh; }
+@media(max-width:699px) { .rocket-journey:not(.rocket-static) { height:1180svh; } }
 .rocket-care-plans a { background:transparent; box-shadow:none; }
 .rocket-care-plans a:hover { transform:none; box-shadow:none; background:#ffffff20; }
 .care-continue { margin-top:26px; font-size:12px; }

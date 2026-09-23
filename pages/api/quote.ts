@@ -141,15 +141,21 @@ export default async function handler(
       storeError = "firestore_connection";
     }
   }
-  let email = { businessSent: false, confirmationSent: false };
-  if (process.env.RESEND_API_KEY) {
-    email = await sendLeadEmails(lead, reference);
+  // A lead is not considered delivered until the business inbox accepts it.
+  // Firestore remains a backup record, but must never hide an email outage.
+  if (!process.env.RESEND_API_KEY) {
+    console.error("quote_email_not_configured", { reference, stored });
+    return res.status(503).json({
+      message:
+        "We couldn’t deliver your enquiry just now. Please email us directly or try again shortly.",
+    });
   }
-  if (!stored && !email.businessSent) {
+  const email = await sendLeadEmails(lead, reference);
+  if (!email.businessSent) {
     console.error("quote_delivery_failed", {
       reference,
       storeError: storeError || "not_configured",
-      emailConfigured: !!process.env.RESEND_API_KEY,
+      emailConfigured: true,
     });
     return res
       .status(503)

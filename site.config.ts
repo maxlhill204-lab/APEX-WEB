@@ -1,25 +1,28 @@
 export const site = {
   name: "APEXWEB",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://apex-web-beta.vercel.app",
+  url: process.env.NEXT_PUBLIC_SITE_URL || "https://apexweb.au",
   email: "apexweb.au@gmail.com",
   instagram: "https://www.instagram.com/apexweb.au/",
   facebook: "https://www.facebook.com/profile.php?id=61591306250659",
   currency: "AUD",
-  emailFrom: "APEXWEB <enquiries@apexweb.com.au>",
+  // This must be a sender verified in Resend. Until apexweb.au is verified,
+  // use the Resend onboarding sender via the EMAIL_FROM environment variable.
+  emailFrom: "APEXWEB <onboarding@resend.dev>",
 };
 export const packages = [
   {
     id: "starter",
     name: "Starter Site",
     price: 300,
-    pages: "1–3 pages",
+    pages: "Up to 3 pages",
     description:
       "A polished, straightforward home for your business. Clear information. Easy enquiries.",
     features: [
-      "Custom responsive design · 1–3 pages",
-      "Contact form and essential SEO",
-      "Static layouts — no animation or 3D",
-      "Launch checks and handover",
+      "Up to 3 custom pages: home, services and contact",
+      "Mobile, tablet and desktop design tailored to your brand",
+      "Contact form, map/social links and essential on-page SEO",
+      "Static layouts: no custom animation, 3D, payments or database",
+      "Pre-launch checks plus handover of your site and accounts",
     ],
     recommended: false,
     cta: "Choose Starter",
@@ -28,14 +31,15 @@ export const packages = [
     id: "business",
     name: "Local Business",
     price: 550,
-    pages: "Scoped to your content",
+    pages: "Up to 6 pages",
     description:
       "A more interactive website with considered scrolling effects and useful customer features.",
     features: [
-      "Custom layouts and scroll animations",
-      "Interactive galleries and service sections",
-      "Stripe payment integration available",
-      "Moderate motion — no cinematic 3D journey",
+      "Everything in Starter, with up to 6 custom pages",
+      "Custom layouts, service sections and interactive galleries",
+      "Purposeful scroll animation and conversion-focused calls to action",
+      "One scoped integration: Stripe, booking link or enquiry workflow",
+      "No cinematic 3D journey or multi-system database build",
     ],
     recommended: true,
     cta: "Choose Business",
@@ -48,10 +52,11 @@ export const packages = [
     description:
       "The full experience. Cinematic 3D, scroll-driven storytelling and connected business tools.",
     features: [
-      "Cinematic 3D and scroll sequences",
-      "Up to 10 custom pages",
-      "Stripe and Firebase / database integration",
-      "Email and newsletter connections",
+      "Everything in Local Business, with up to 10 custom pages",
+      "Cinematic 3D and scroll-driven storytelling built for your brand",
+      "Connected workflow: Stripe plus Firebase/database integration",
+      "Email or newsletter connection and a tailored launch handover",
+      "Best value when you need an experience, not just an online brochure",
     ],
     recommended: false,
     cta: "Choose Growth",
@@ -64,7 +69,7 @@ export const carePlans = [
     price: 39,
     annual: 351,
     description:
-      "Hosting, uptime and dependency checks for a simple site. Essential support with agreed update allowances.",
+      "For a simple, static site: managed hosting, uptime and dependency checks, security updates and one small text/image update each month.",
   },
   {
     id: "managed",
@@ -72,7 +77,7 @@ export const carePlans = [
     price: 79,
     annual: 711,
     description:
-      "Hosting and maintenance for an interactive site, including checks on agreed Stripe or database connections.",
+      "For an interactive business site: everything in Starter care, plus two small updates each month and checks on one agreed booking, Stripe or database connection.",
   },
   {
     id: "priority",
@@ -80,7 +85,7 @@ export const carePlans = [
     price: 149,
     annual: 1341,
     description:
-      "Care for a more connected site: database, payment and email integrations, with agreed monitoring and update allowances.",
+      "For a connected Growth site: everything in Business care, plus four small updates each month and monitoring for agreed payment, database and email connections.",
   },
 ];
 export const featureOptions = [
