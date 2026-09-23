@@ -64,7 +64,8 @@ export async function sendLeadEmails(lead: Lead, reference: string) {
     html: string,
     text: string,
     reply_to: string,
-  ) {
+    sender = from,
+  ): Promise<boolean> {
     try {
       const r = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -73,9 +74,18 @@ export async function sendLeadEmails(lead: Lead, reference: string) {
           "Content-Type": "application/json",
           "Idempotency-Key": `${reference}-${suffix}`,
         },
-        body: JSON.stringify({ from, to: [to], subject, html, text, reply_to }),
+        body: JSON.stringify({ from: sender, to: [to], subject, html, text, reply_to }),
         signal: AbortSignal.timeout(7000),
       });
+      // Keep internal notifications working while a new sending domain verifies.
+      // Never use the alternate brand's domain for customer-facing confirmations.
+      if (!r.ok && r.status === 403 && suffix === "business" && process.env.INTERNAL_EMAIL_FALLBACK_FROM) {
+        const error = await r.json().catch(() => ({}));
+        if (typeof error.message === "string" && /domain.*not verified/i.test(error.message)) {
+          console.warn("quote_internal_sender_fallback", { reference });
+          return send("business-fallback", to, subject, html, text, reply_to, process.env.INTERNAL_EMAIL_FALLBACK_FROM);
+        }
+      }
       if (!r.ok)
         console.error("quote_email_failed", {
           reference,

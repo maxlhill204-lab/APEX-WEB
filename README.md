@@ -43,6 +43,8 @@ Resend's free Marketplace resource `apexweb-email` is connected to this project.
 
 Email requests use Resend idempotency keys, escaped HTML, plain-text alternatives, request timeouts, and Reply-To addresses. Secret API keys never enter client bundles.
 
+`INTERNAL_EMAIL_FALLBACK_FROM` is configured to an existing verified sender in the same Resend account. It is used only for notifications to `apexweb.au@gmail.com`, and only when Resend explicitly rejects the primary domain as unverified. Customer confirmations never use this alternate domain. The primary sender automatically takes over when DNS verification succeeds. An internal delivery test was confirmed as `delivered` by Resend on September 23; mailbox-folder placement is not established by that event.
+
 ## Analytics and future lead acquisition
 
 The site emits `apexweb:analytics` CustomEvents for quote clicks, package selection, quote starts/completions, email and Instagram clicks. No external analytics provider is enabled. Integrate an approved first-party adapter with this event if needed. Campaign source/UTM values are held in session storage and added to the enquiry. There is no outbound sending or prospect scraping system. `Lead` provides a typed boundary for a future CRM or campaign workflow.

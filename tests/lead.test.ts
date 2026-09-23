@@ -117,10 +117,12 @@ async function call(
     project: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
     key: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
     resend: process.env.RESEND_API_KEY,
+    fallback: process.env.INTERNAL_EMAIL_FALLBACK_FROM,
   };
   process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID = "qa-project";
   process.env.NEXT_PUBLIC_FIREBASE_API_KEY = "qa-key";
   delete process.env.RESEND_API_KEY;
+  delete process.env.INTERNAL_EMAIL_FALLBACK_FROM;
   try {
     assert.equal((await call(valid, "GET")).status, 405);
     results.push("API rejects wrong method");
@@ -164,6 +166,42 @@ async function call(
     results.push("accepted business email and customer confirmation return success");
     assert.equal((await call(valid)).result.reference, accepted.result.reference);
     results.push("retry uses same deterministic document identity");
+    process.env.INTERNAL_EMAIL_FALLBACK_FROM = "APEXWEB internal <notifications@verified.example>";
+    const sentBodies: Record<string, unknown>[] = [];
+    globalThis.fetch = async (input, init) => {
+      if (!String(input).includes("api.resend.com")) return new Response("{}", { status: 409 });
+      const body = JSON.parse(String(init?.body));
+      sentBodies.push(body);
+      return body.from === process.env.INTERNAL_EMAIL_FALLBACK_FROM
+        ? new Response('{"id":"qa-delivered"}', { status: 200 })
+        : new Response('{"message":"The apexweb.au domain is not verified."}', { status: 403 });
+    };
+    const fallback = await call(valid);
+    assert.equal(fallback.status, 200);
+    assert.equal(fallback.result.confirmationSent, false);
+    assert.equal(sentBodies.length, 3);
+    assert.deepEqual(sentBodies[1].to, ["apexweb.au@gmail.com"]);
+    assert.equal(sentBodies[1].reply_to, valid.email);
+    assert.notEqual(sentBodies[2].from, process.env.INTERNAL_EMAIL_FALLBACK_FROM);
+    results.push("unverified domain uses internal-only fallback without a false customer confirmation");
+    let forbiddenAttempts = 0;
+    globalThis.fetch = async (input) => {
+      if (!String(input).includes("api.resend.com")) return new Response("{}", { status: 409 });
+      forbiddenAttempts++;
+      return new Response('{"message":"Invalid API key"}', { status: 403 });
+    };
+    assert.equal((await call(valid)).status, 503);
+    assert.equal(forbiddenAttempts, 1);
+    results.push("internal fallback cannot mask API credential rejection");
+    sentBodies.length = 0;
+    globalThis.fetch = async (input, init) => {
+      if (String(input).includes("api.resend.com")) sentBodies.push(JSON.parse(String(init?.body)));
+      return new Response("{}", { status: 200 });
+    };
+    assert.equal((await call(valid)).result.confirmationSent, true);
+    assert.equal(sentBodies.length, 2);
+    assert.ok(sentBodies.every(body => body.from !== process.env.INTERNAL_EMAIL_FALLBACK_FROM));
+    results.push("verified primary sender automatically bypasses the internal fallback");
     console.log(JSON.stringify({ passed: results.length, results }, null, 2));
   } finally {
     globalThis.fetch = original;
@@ -171,6 +209,7 @@ async function call(
       NEXT_PUBLIC_FIREBASE_PROJECT_ID: old.project,
       NEXT_PUBLIC_FIREBASE_API_KEY: old.key,
       RESEND_API_KEY: old.resend,
+      INTERNAL_EMAIL_FALLBACK_FROM: old.fallback,
     })) {
       if (v === undefined) delete process.env[k];
       else process.env[k] = v;
