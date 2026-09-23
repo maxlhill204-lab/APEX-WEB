@@ -9,7 +9,7 @@ export function Layout({ children }: { children: ReactNode }) {
   useEffect(() => {
     const cinema = document.querySelector(".cinema, .cinema-static");
     if (!cinema) return;
-    const observer = new IntersectionObserver(([entry]) => setCinemaVisible(entry.isIntersecting));
+    const observer = new IntersectionObserver(([entry]) => setCinemaVisible(entry.isIntersecting), { rootMargin: "-100px 0px 0px 0px" });
     observer.observe(cinema);
     return () => observer.disconnect();
   }, [router.pathname]);
@@ -21,7 +21,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <Navbar />
       <main id="main">{children}</main>
       {router.pathname !== "/" && <Footer />}
-      {router.pathname !== "/quote" && router.pathname !== "/contact" && (
+      {router.pathname === "/" && (
         <Link
           className="cinema-cta"
           style={router.pathname === "/" && !cinemaVisible ? { display: "none" } : undefined}

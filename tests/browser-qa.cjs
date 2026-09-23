@@ -66,10 +66,10 @@ fs.mkdirSync(qaOutput, { recursive: true });
     )
     .waitFor();
   await page.getByRole("link", { name: "Build my growth site" }).click();
-  await page.locator('input[value="business"]').waitFor();
-  if (!(await page.locator('input[value="business"]').isChecked()))
-    throw Error("Quote must open on Local Business");
-  report.flows.push("Selectable packages lead to Local Business quote default");
+  await page.locator('input[value="growth"]').waitFor();
+  if (!(await page.locator('input[value="growth"]').isChecked()))
+    throw Error("Quote must preserve the selected Growth package");
+  report.flows.push("Selected Growth package carries into the quote");
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole("button", { name: "Open menu" }).click();
   await page.getByRole("dialog").waitFor();

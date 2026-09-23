@@ -90,9 +90,6 @@ export function Navbar() {
           <Link href="/quote" onClick={close}>
             Start your quote <ArrowUpRight />
           </Link>
-          <Link href="/#contact" onClick={close}>
-            Contact
-          </Link>
         </nav>
       </dialog>
     </header>

@@ -69,6 +69,7 @@ export function PackageExperience({selected, onSelect}: {selected: number; onSel
               ][selected]
             }
           </span>
+          {selected === 2 && <p className="package-value">Just ${packages[2].price - packages[1].price} more than Business: 4 more pages, 3D and connected tools.</p>}
           <h3>{plan.description}</h3>
           <ul>
             {plan.features.map((f) => (
@@ -78,9 +79,10 @@ export function PackageExperience({selected, onSelect}: {selected: number; onSel
               </li>
             ))}
           </ul>
-          <Link className="button" href="/quote">
+          <Link className="button" href={`/quote?package=${plan.id}`}>
             Build my {plan.name.toLowerCase()} <ArrowUpRight size={18} />
           </Link>
+          <Link className="package-comparison-link" href="/services">Compare every inclusion and care plan ↗</Link>
           <p className="mission-note">
             Final scope and price agreed before work begins. Hosting and
             third-party service fees are separate.

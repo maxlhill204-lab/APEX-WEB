@@ -16,6 +16,7 @@ import {
   type Lead,
 } from "@/lib/lead";
 import { track } from "@/lib/analytics";
+import { enquiryDraft } from "@/lib/enquiry-draft";
 const steps = [
   "Your package",
   "Your business",
@@ -246,6 +247,23 @@ export function QuoteWizard({
     </label>
   );
   const selected = packages.find((p) => p.id === lead.package);
+  const selectedCare = carePlans.find((p) => p.id === lead.care);
+  const carePrice = selectedCare
+    ? lead.billing === "yearly"
+      ? `$${(selectedCare.annual / 12).toFixed(2)}/month, billed $${selectedCare.annual.toLocaleString("en-AU")} annually`
+      : lead.billing === "monthly"
+        ? `$${selectedCare.price}/month, paid monthly`
+        : `$${selectedCare.price}/month or $${selectedCare.annual.toLocaleString("en-AU")}/year; billing to be agreed`
+    : lead.care === "none" ? "Build only — no care plan selected" : "To be discussed; optional";
+  const draft = enquiryDraft(lead);
+  function downloadEnquiry() {
+    const url = URL.createObjectURL(new Blob([draft.subject + "\n\n" + draft.body], { type: "text/plain;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "APEXWEB-enquiry.txt";
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
   const packageName =
     selected?.name ||
     (lead.package === "custom" ? "Custom project" : "Help me decide");
@@ -355,7 +373,7 @@ export function QuoteWizard({
                     <strong>{p.name}</strong>
                     <small>
                       {p.pages}
-                      {p.recommended ? " · Recommended for services" : ""}
+                      {p.recommended ? " · Best value for connected sites" : ""}
                     </small>
                   </span>
                   <span className="choice-price">From ${p.price}</span>
@@ -388,6 +406,11 @@ export function QuoteWizard({
                 </label>
               ))}
             </div>
+            {selected && <div className="quote-inclusions">
+              <strong>Included in {selected.name}</strong>
+              <ul>{selected.features.map(feature => <li key={feature}>{feature}</li>)}</ul>
+              <Link href="/services" target="_blank">Compare packages (opens a new tab) ↗</Link>
+            </div>}
             <p className="fine-print">
               AUD, one-time build. Final scope and price confirmed in your
               quote. Hosting and external services are separate.
@@ -508,7 +531,7 @@ export function QuoteWizard({
                   : "Individually quoted"}
               </span>
             </div>
-            {review("Package", 0, [["Build", packageName]])}
+            {review("Package", 0, [["Build", packageName], ["One-off build", selected ? `From $${selected.price} AUD; final quote to be agreed` : "Individually quoted"]])}
             {review("Business", 1, [
               ["Business", lead.business],
               ["Industry", lead.industry],
@@ -519,7 +542,7 @@ export function QuoteWizard({
             {review("Website", 2, [
               ["Features", lead.features.join(", ") || "Please recommend"],
               ["Style", lead.style],
-              ["Hosting billing", lead.billing],
+              ["Ongoing cost", carePrice],
               ["Timing", lead.timeframe],
               ["Pages", lead.pages],
               [
@@ -576,7 +599,10 @@ export function QuoteWizard({
         <div className="error-banner" role="alert">
           {message}
           <br />
-          <a href={`mailto:${site.email}`}>Email {site.email}</a>
+          <a href={draft.href}>Open an email with my enquiry details</a>
+          <p>Your email app opens a draft addressed to {site.email}. Review it and press Send there.</p>
+          <button type="button" className="back-button" onClick={downloadEnquiry}>Download my enquiry instead</button>
+          <p>If an email app does not open, attach the downloaded file to an email to {site.email}.</p>
         </div>
       )}
       <div className="wizard-actions">

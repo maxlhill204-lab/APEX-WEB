@@ -4322,3 +4322,58 @@ body {
 
 .rocket-care h2 { font-size:clamp(28px,3vw,44px); margin:16px 0 22px; }
 .care-build-prices { margin-top:12px; }
+
+/* Keep transactional information in normal document flow: no nested scroll trap. */
+.rocket-journey:not(.rocket-static) { height: 620svh; }
+.care-section.rocket-care {
+  position:relative; inset:auto; width:100%; max-width:none; max-height:none;
+  overflow:visible; padding:76px max(24px, calc((100vw - 1120px) / 2));
+  background:#f0e9dc; color:#443a2d;
+}
+.care-section.rocket-care h2 { font-size:clamp(40px,5vw,68px); margin-top:14px; }
+.care-section.rocket-care > p { max-width:760px; font-size:14px; }
+.care-section .rocket-care-plans { gap:28px; margin-top:28px; }
+.care-section .rocket-care-plans > a { padding:22px 0; }
+.care-section .rocket-care-plans > a > span:first-child { font-size:17px; }
+.care-section .rocket-care-plans strong { font-size:36px; }
+.care-section .rocket-care-plans > a > span:nth-child(3) { font-size:12px; }
+.care-section .rocket-care-plans p { font-size:14px; }
+.care-section .care-action { display:block; margin-top:18px; font-size:13px; text-decoration:underline; text-underline-offset:4px; }
+.care-section .care-build-prices { max-width:700px; }
+.care-section .care-build-prices > span { font-size:13px; }
+.care-section.rocket-care > p.care-scope { font-size:12px; max-width:940px; }
+.finale-flow.rocket-finale { position:relative; inset:auto; min-height:90svh; visibility:visible!important; opacity:1!important; --final-enter:1; }
+.package-comparison-link { display:block; font-size:12px; margin:12px 0; text-decoration:underline; text-underline-offset:4px; }
+.package-value { font-size:13px; line-height:1.55; color:#dbc097; }
+.pricing-page .package-value { color:var(--text); margin:0 0 18px; min-height:65px; font-size:13px; }
+.pricing-page .section-heading h1 { font-size:clamp(2rem,3.6vw,3.5rem); }
+.pricing-page .section-heading h1 span { color:#a4a4a1; }
+.included-every-build { margin:42px 0; padding:28px 0; border-block:1px solid #ffffff25; }
+.included-every-build h3 { font-size:24px; margin-bottom:14px; }
+.included-every-build p { max-width:900px; margin:12px 0; line-height:1.8; color:#bcbcb8; }
+.quote-inclusions { padding:20px; margin-top:20px; border:1px solid #ffffff25; border-radius:8px; }
+.quote-inclusions ul { padding-left:18px; margin:12px 0; font-size:13px; line-height:1.8; color:#bcbcb8; }
+.quote-inclusions a { font-size:12px; text-decoration:underline; }
+.pricing-faq h2 { margin-bottom:24px; font-size:36px; }
+.pricing-faq .comparison p { line-height:1.8; padding:0 20px 20px; color:#bcbcb8; }
+.pricing-faq > .button { margin-top:28px; }
+.header { background:#080d13ed; backdrop-filter:blur(12px); border-bottom:1px solid #ffffff14; }
+.paper-scene .header .brand,
+.paper-scene .header .brand-light,
+.paper-scene .header .desktop-nav a,
+.paper-scene .header .nav-quote,
+.paper-scene .header .mobile-toggle { color:#fff; }
+.care-section :focus-visible { outline-color:#473b2b; }
+@media(max-width:699px) {
+  .rocket-journey:not(.rocket-static) { height:620svh; }
+  .care-section.rocket-care { padding:54px 24px; }
+  .care-section .rocket-care-plans { grid-template-columns:1fr; gap:8px; }
+  .care-section .rocket-care-plans > a { padding:22px 0; }
+  .care-section .rocket-care-plans strong { font-size:32px; }
+  .care-section .care-build-prices { gap:12px; }
+  .care-section .care-build-prices > span { font-size:11px; }
+  .care-section .billing-toggle button { padding:10px 12px; }
+  .care-section .billing-toggle button span { margin-left:4px; }
+  .launch-packages .package-value { font-size:10px; margin:5px 0; }
+  .launch-packages .package-comparison-link { font-size:10px; margin:6px 0; }
+}

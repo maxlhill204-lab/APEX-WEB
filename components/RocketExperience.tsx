@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { CarePlans } from "./CarePlans";
 import { PackageExperience } from "./PackageExperience";
 import { carePlans, packages, site } from "@/site.config";
 const RocketScene = dynamic(() => import("./RocketScene"), { ssr: false });
@@ -9,10 +10,10 @@ export function RocketExperience() {
   const root = useRef<HTMLElement>(null),
     progress = useRef(0);
   const [enabled, setEnabled] = useState(false),
-    [yearly, setYearly] = useState(true),
     [nearby, setNearby] = useState(false),
     [selected, setSelected] = useState(0);
   const bucket = useRef(-1);
+  const manuallySelected = useRef(false);
   useEffect(() => {
     const el = root.current;
     if (!el) return;
@@ -29,7 +30,7 @@ export function RocketExperience() {
     return () => io.disconnect();
   }, []);
   useEffect(() => {
-    const media = matchMedia("(prefers-reduced-motion: reduce)");
+    const media = matchMedia("(prefers-reduced-motion: reduce), (max-width: 1023px), (max-height: 850px)");
     const change = () => setEnabled(!media.matches);
     change();
     media.addEventListener("change", change);
@@ -42,7 +43,7 @@ export function RocketExperience() {
     const update = () => {
       frame = 0;
       if (!enabled) {
-        el.querySelectorAll<HTMLElement>("[data-phase],.launch-packages,.rocket-finale").forEach(node => { node.inert = false; });
+        el.querySelectorAll<HTMLElement>("[data-phase],.launch-packages").forEach(node => { node.inert = false; });
         document.documentElement.classList.toggle(
           "paper-scene",
           el.getBoundingClientRect().top < 0,
@@ -52,12 +53,12 @@ export function RocketExperience() {
       const r = el.getBoundingClientRect(),
         distance = Math.max(0, -r.top / innerHeight),
         travel = (r.height - innerHeight) / innerHeight,
-        p = Math.max(-0.1, ((distance - 1.35) / (travel - 1.35)) * 1.3);
+        p = Math.max(-0.1, ((distance - 1.35) / (travel - 1.35)) * 0.8);
       progress.current = p;
       const nextBucket = Math.min(2, Math.floor(distance / 0.45));
       if (nextBucket !== bucket.current) {
         bucket.current = nextBucket;
-        setSelected(nextBucket);
+        if (!manuallySelected.current) setSelected(nextBucket);
       }
       const launch = clamp((p - 0.045) / 0.115);
       el.style.setProperty("--launch", String(launch));
@@ -68,17 +69,8 @@ export function RocketExperience() {
         packages.inert = p >= 0.02;
       }
       el.classList.toggle("launch-active", p >= 0);
-      const finalEnter = clamp((p - 1.08) / 0.18);
-      const finalEase = finalEnter * finalEnter * (3 - 2 * finalEnter);
-      el.style.setProperty("--final-enter", String(finalEase));
-      const finale = el.querySelector<HTMLElement>(".rocket-finale");
-      if (finale) {
-        finale.style.visibility = p > 1 ? "visible" : "hidden";
-        finale.style.opacity = String(clamp((p - 1) / 0.07));
-        finale.inert = finalEnter < 0.8;
-      }
       const renderer = el.querySelector<HTMLElement>(".rocket-renderer");
-      if (renderer) renderer.style.opacity = String(1 - clamp((p - 0.98) / 0.12));
+      if (renderer) renderer.style.opacity = String(1 - clamp((p - 0.68) / 0.12));
       document.documentElement.classList.toggle(
         "paper-scene",
         p > 0.42 && r.top < 0 && r.bottom > 0,
@@ -88,8 +80,7 @@ export function RocketExperience() {
       el.querySelectorAll<HTMLElement>("[data-phase]").forEach((node, i) => {
         const intervals = [
             [0.11, 0.38],
-            [0.4, 0.68],
-            [0.73, 1.1],
+            [0.4, 0.9],
           ],
           [a, b] = intervals[i];
         const alpha =
@@ -103,7 +94,7 @@ export function RocketExperience() {
         }
         node.style.opacity = String(alpha);
         node.style.visibility = alpha > 0.01 ? "visible" : "hidden";
-        node.style.transform = `translateY(${(1 - clamp((p - a) / 0.07)) * 30 - (i === 2 ? clamp((p - 0.99) / 0.12) * 180 : 0)}px)`;
+        node.style.transform = `translateY(${(1 - clamp((p - a) / 0.07)) * 30}px)`;
         node.inert = alpha < 0.1;
       });
     };
@@ -121,6 +112,7 @@ export function RocketExperience() {
     };
   }, [enabled]);
   return (
+    <>
     <section
       className={`rocket-journey ${enabled ? "" : "rocket-static"}`}
       ref={root}
@@ -131,7 +123,7 @@ export function RocketExperience() {
       <div className="rocket-sticky">
         <div className="rocket-paper" />
         <div className="launch-packages">
-          <PackageExperience selected={selected} onSelect={setSelected} />
+          <PackageExperience selected={selected} onSelect={(index) => { manuallySelected.current = true; setSelected(index); }} />
         </div>
         {enabled && nearby && <RocketScene progress={progress} />}
         <div className="rocket-flight" data-phase>
@@ -178,8 +170,8 @@ export function RocketExperience() {
               <span>03 / CONNECTIONS</span>
               <h3>Useful integrations.</h3>
               <p>
-                Stripe on Business and Growth. Database, email and newsletters
-                on Growth, scoped to your workflow.
+                One booking or payment connection on Business. A scoped payment,
+                database and email workflow on Growth.
               </p>
             </article>
             <article>
@@ -195,79 +187,10 @@ export function RocketExperience() {
             DESIGN → BUILD → REVIEW → LAUNCH
           </span>
         </div>
-        <div
-          className="rocket-care"
-          data-phase
-          role="region"
-          aria-label="Website purchase and ongoing care pricing"
-          tabIndex={0}
-        >
-          <span className="eyebrow">KEEP YOUR WEBSITE IN GOOD HANDS</span>
-          <h2>
-            Built once.
-            <br />
-            Looked after.
-          </h2>
-          <div className="care-purchase">
-            <span className="care-step">01 / BUY YOUR WEBSITE · ONE-OFF</span>
-            <p>A one-off build fee. Your website, designed and built for you.</p>
-            <div className="care-build-prices">
-              {packages.map((p) => (
-                <span key={p.id}>{p.name}<strong>From ${p.price.toLocaleString("en-AU")}</strong></span>
-              ))}
-            </div>
-          </div>
-          <span className="care-step">02 / CHOOSE ONGOING CARE</span>
-          <p>
-            After your build, add optional hosting and maintenance. Every plan
-            below is shown as a monthly cost so the value is easy to compare.
-          </p>
-          <div
-            className="billing-toggle"
-            role="group"
-            aria-label="Hosting billing period"
-          >
-            <button aria-pressed={yearly} onClick={() => setYearly(true)}>
-              Pay annually <span>Save 25%</span>
-            </button>
-            <button aria-pressed={!yearly} onClick={() => setYearly(false)}>
-              Pay monthly
-            </button>
-          </div>
-          <div className="rocket-care-plans">
-            {carePlans.map((c) => (
-              <Link
-                key={c.id}
-                href={`/quote?care=${c.id}&billing=${yearly ? "yearly" : "monthly"}`}
-              >
-                <span>{c.name}</span>
-                <strong>
-                  ${yearly ? (c.annual / 12).toFixed(2) : c.price.toLocaleString("en-AU")}
-                  <small>/month</small>
-                </strong>
-                <span>
-                  {yearly
-                    ? `Paid annually: $${c.annual.toLocaleString("en-AU")}/year · save $${(c.price * 12 - c.annual).toLocaleString("en-AU")}`
-                    : `$${(c.price * 12).toLocaleString("en-AU")}/year if kept for 12 months`}
-                </span>
-                <p>{c.description}</p>
-                <span className="care-action">Explore this care plan ↗</span>
-              </Link>
-            ))}
-          </div>
-          <p className="care-custom">
-            Need a different level of support? <Link href="/quote?source=custom-maintenance">Custom care, priced to your needs ↗</Link>
-          </p>
-          <p className="care-scope">
-            All prices are AUD. Build prices are starting prices and we confirm
-            the final scope before work begins. “Small update” means a text,
-            image or link change—not a new page, design or feature. Domains,
-            provider usage, transaction fees and work outside the listed care
-            allowance are separate and quoted before we proceed.
-          </p>
-          <p className="care-continue">Your next chapter is just below ↓</p>
-        </div>
-        <div className="rocket-finale">
+      </div>
+    </section>
+    <CarePlans />
+        <div className="rocket-finale finale-flow">
           <div className="finale-light" aria-hidden="true" />
           <div className="finale-invitation">
             <span className="eyebrow">A WEBSITE THAT’S YOURS</span>
@@ -284,7 +207,6 @@ export function RocketExperience() {
             <Link href="/credits">Credits</Link>
           </div>
         </div>
-      </div>
-    </section>
+    </>
   );
 }

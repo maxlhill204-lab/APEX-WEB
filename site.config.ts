@@ -30,7 +30,7 @@ export const packages = [
   {
     id: "business",
     name: "Local Business",
-    price: 550,
+    price: 700,
     pages: "Up to 6 pages",
     description:
       "A more interactive website with considered scrolling effects and useful customer features.",
@@ -41,7 +41,7 @@ export const packages = [
       "One scoped integration: Stripe, booking link or enquiry workflow",
       "No cinematic 3D journey or multi-system database build",
     ],
-    recommended: true,
+    recommended: false,
     cta: "Choose Business",
   },
   {
@@ -58,7 +58,7 @@ export const packages = [
       "Email or newsletter connection and a tailored launch handover",
       "Best value when you need an experience, not just an online brochure",
     ],
-    recommended: false,
+    recommended: true,
     cta: "Choose Growth",
   },
 ];
@@ -77,7 +77,7 @@ export const carePlans = [
     price: 79,
     annual: 711,
     description:
-      "For an interactive business site: everything in Starter care, plus two small updates each month and checks on one agreed booking, Stripe or database connection.",
+      "For an interactive business site: Starter care coverage, with two small updates in total each month and checks on one agreed booking, Stripe or database connection.",
   },
   {
     id: "priority",
@@ -85,7 +85,7 @@ export const carePlans = [
     price: 149,
     annual: 1341,
     description:
-      "For a connected Growth site: everything in Business care, plus four small updates each month and monitoring for agreed payment, database and email connections.",
+      "For a connected Growth site: Business care coverage, with four small updates in total each month and checks on your agreed payment, database and email connections.",
   },
 ];
 export const featureOptions = [
@@ -116,11 +116,11 @@ export const styleOptions = [
 export const faqs = [
   [
     "How much does a website cost?",
-    "One-time builds start at $300 for Starter, $550 for Local Business, and $850 for Growth. The final quote depends on design complexity, motion and integrations. Optional hosting is separate, with monthly or discounted annual billing. We confirm the complete price before work begins.",
+    "One-time builds start at $300 for Starter, $700 for Local Business, and $850 for Growth. Growth adds up to four more pages, a scoped 3D experience, database and email connections for $150 more than Business at the starting price. Optional care is separate. We confirm your complete scope, provider costs and final price before work begins.",
   ],
   [
     "Which package should I choose?",
-    "Choose Starter for a static site, Local Business for moderate interactive motion and Stripe, or Growth for cinematic 3D and database or email integrations. If you’re unsure, choose “Help me decide” in the quote form.",
+    "Choose Starter for a simple information and enquiry site. Local Business suits a larger service website with one agreed booking or payment connection. Growth is the stronger value if you need more pages, a 3D experience and connected payment, database and email tools. You can choose “Help me decide” in the quote form.",
   ],
   [
     "Does a quote request commit me to anything?",

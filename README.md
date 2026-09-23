@@ -17,7 +17,7 @@ Use `.env.example` for local configuration. Production Firebase environment vari
 
 ## Business configuration
 
-Edit `site.config.ts` for contact email, Instagram, website URL, package prices and inclusions, care plans and FAQs. Current prices are copied from the existing repository, not invented: builds $300/$550/$850 AUD and optional care $39/$79/$149 per month. Final scope and price are agreed in a quote.
+Edit `site.config.ts` for contact email, Instagram, website URL, package prices and inclusions, care plans and FAQs. September 2026 pricing: builds start at $300/$700/$850 AUD; Growth is $150 above Business. Optional care remains $39/$79/$149 per month, or $351/$711/$1,341 annually (25% saving). Annual billing opens first and displays the effective monthly price. Final scope and price are agreed in a quote.
 
 ## Cinematic landing page
 
@@ -39,7 +39,7 @@ The API reports success only when Firebase has accepted the enquiry or the busin
 
 ## Email activation — remaining configuration
 
-The server-side Resend integration and both HTML/plain-text email templates are complete. **RESEND_API_KEY is absent from the existing Vercel project.** Set this as a sensitive server environment variable for Production and Preview after creating or connecting a Resend sending account. The default sender is `APEXWEB <enquiries@apexweb.com.au>`; verify the sender domain in Resend first, or set `EMAIL_FROM` to an already verified sender. Redeploy and test delivery to both business and customer inboxes. API acceptance and actual inbox delivery are separate checks. No email delivery is currently certified.
+The server-side Resend integration and HTML/plain-text email templates are implemented. **RESEND_API_KEY is absent from the Vercel project as of the September 23 launch check.** Set it as a sensitive server environment variable for Production and Preview. Verify `apexweb.au` in Resend and set `EMAIL_FROM=APEXWEB <enquiries@apexweb.au>` after verification. The code's onboarding sender is for Resend testing only and cannot be relied on for arbitrary customer confirmations. Redeploy, submit a real test to `apexweb.au@gmail.com`, and confirm receipt in the mailbox. API acceptance and actual inbox delivery are separate checks. Failed submissions preserve answers and offer a prefilled email and downloadable brief; this is a fallback, not certified automatic delivery.
 
 Email requests use Resend idempotency keys, escaped HTML, plain-text alternatives, request timeouts, and Reply-To addresses. Secret API keys never enter client bundles.
 
@@ -49,7 +49,7 @@ The site emits `apexweb:analytics` CustomEvents for quote clicks, package select
 
 ## Deployment
 
-Linked project: `apex-web` in `maxlhill204-labs-projects`. Existing domain: `apexweb.com.au` is bound in Vercel but currently points to a third-party parking provider. The working public site is `https://apex-web-beta.vercel.app`. Vercel reports the required apex A record as `76.76.21.21`; correct it at the existing DNS provider after checking domain ownership. No DNS records were changed. After DNS/TLS verification, set `NEXT_PUBLIC_SITE_URL=https://apexweb.com.au`, update sitemap/robots URLs and redeploy. Preserve the project binding. `vercel deploy --prod` deploys the site. Run commands from this repository. If a newly released CLI gives a scope error, the verified CLI for this build is `npx vercel@59.14.0` with the existing `.vercel/project.json` link and no scope override.
+Linked project: `apex-web` in `maxlhill204-labs-projects`. `apexweb.au` and `www.apexweb.au` are attached and ownership-verified in Vercel; `www` redirects to the apex with HTTP 308. DNS configuration is still invalid because Crazy Domains serves the parking IP `27.124.125.171`. Vercel's September 23 recommendation: replace the parking apex A record with A records `216.198.79.1` and `64.29.17.1`; set `www` CNAME to `db93ac953f0e3d72.vercel-dns-017.com`. Preserve unrelated mail/TXT records. Run `npx vercel@59.14.0 domains verify apexweb.au` and the corresponding www verification after DNS changes. `NEXT_PUBLIC_SITE_URL=https://apexweb.au` is set for Production and Preview, and sitemap/robots use that domain. The working public origin remains `https://apex-web-beta.vercel.app`. Deploy with the existing project binding; do not create another project.
 
 Preserve the GitHub source as well as the Vercel deployment to prevent future deployments of the old design. The finished source is pushed to `main`, with a matching `codex/apexweb-complete-rebuild` branch retained.
 

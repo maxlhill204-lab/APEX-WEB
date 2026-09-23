@@ -1,18 +1,20 @@
 import Link from "next/link";
 import { ArrowUpRight, Check, Plus } from "lucide-react";
-import { packages, carePlans } from "@/site.config";
+import { packages, faqs } from "@/site.config";
+import { CarePlans } from "./CarePlans";
 import { track } from "@/lib/analytics";
 export function Packages() {
   return (
-    <section className="section container" id="packages">
+    <>
+    <section className="section container pricing-page" id="packages">
       <div className="section-heading">
         <div>
           <p className="eyebrow">03 — THE RIGHT FIT</p>
-          <h2>
+          <h1>
             Big on quality.
             <br />
             <span>Clear on price.</span>
-          </h2>
+          </h1>
         </div>
         <p>
           Start with the website your business needs.
@@ -31,7 +33,7 @@ export function Packages() {
               <span className="mono">0{i + 1}</span>
               {p.recommended && (
                 <span className="recommend-badge">
-                  Recommended for service businesses
+                  Best value for connected sites
                 </span>
               )}
             </div>
@@ -41,6 +43,7 @@ export function Packages() {
               <span>From</span> ${p.price}
               <span>AUD / one-time</span>
             </div>
+            <p className="package-value">{p.id === "growth" ? `Only $${packages[2].price - packages[1].price} above Business for 4 more pages, 3D and connected tools.` : p.id === "business" ? "For service businesses ready for more pages, interaction and one useful connection." : "A focused, affordable starting point for customers to find and contact you."}</p>
             <Link
               className={`button ${p.recommended ? "" : "button-outline"}`}
               href={`/quote?package=${p.id}`}
@@ -69,7 +72,12 @@ export function Packages() {
           Let’s find your fit <ArrowUpRight size={18} />
         </Link>
       </div>
-      <details className="comparison">
+      <div className="included-every-build">
+        <h3>Every build starts with the essentials.</h3>
+        <p>Custom design using your brand and supplied content, mobile and desktop layouts, a working enquiry form, page titles and descriptions, social and map links, HTTPS and domain connection, pre-launch testing, a review before publishing, and handover of your website and accounts.</p>
+        <p>Your written quote confirms the page list, design, integrations, review rounds and launch date. Domains, hosting, paid services and transaction fees are separate. Full online stores, custom applications and ongoing content creation are quoted separately.</p>
+      </div>
+      <details className="comparison" open>
         <summary>
           Compare the details <Plus size={19} />
         </summary>
@@ -89,7 +97,10 @@ export function Packages() {
             <tbody>
               {[
                 ["Pages", ...packages.map((p) => p.pages)],
+                ["Starting build price (AUD)", ...packages.map((p) => `$${p.price} once`)],
+                ["Best for", "Getting found and receiving enquiries", "A larger service site with one connection", "A distinctive site with connected business tools"],
                 ["Phone, tablet & desktop", "Included", "Included", "Included"],
+                ["Custom design, enquiry form & basic SEO", "Included", "Included", "Included"],
                 [
                   "Motion",
                   "Static — no animation",
@@ -99,9 +110,12 @@ export function Packages() {
                 [
                   "Integrations",
                   "Contact enquiries",
-                  "Stripe available",
-                  "Stripe, database, email / newsletters",
+                  "One agreed booking link, Stripe payment flow or enquiry workflow",
+                  "An agreed Stripe + database workflow and email/newsletter connection",
                 ],
+                ["Database", "Not included", "Quoted separately", "One scoped Firebase/database integration"],
+                ["3D experience", "Not included", "Quoted separately", "One agreed cinematic 3D/scroll experience"],
+                ["Review, launch checks & handover", "Included", "Included", "Included, plus connected-tool handover"],
                 ["Hosting & domain", "Separate", "Separate", "Separate"],
               ].map((row) => (
                 <tr key={row[0]}>
@@ -120,30 +134,13 @@ export function Packages() {
           </table>
         </div>
       </details>
-      <details className="comparison">
-        <summary>
-          Optional care after launch — from $39/month <Plus size={19} />
-        </summary>
-        <div className="care-grid">
-          {carePlans.map((p) => (
-            <div key={p.id}>
-              <h3>
-                {p.name} <span>${p.price}/mo</span>
-              </h3>
-              <p>{p.description}</p>
-              <p><strong>${p.annual}/year — save 25%</strong></p>
-              <Link href={`/quote?care=${p.id}`}>
-                Ask about {p.name} <ArrowUpRight size={16} />
-              </Link>
-            </div>
-          ))}
-        </div>
-        <p className="fine-print">
-          Care is optional and agreed separately after approval. Update
-          allowances, domains, third-party fees and any applicable tax are
-          confirmed in your written quote.
-        </p>
-      </details>
     </section>
+    <CarePlans />
+    <section className="section container pricing-faq" aria-labelledby="pricing-questions">
+      <h2 id="pricing-questions">Before we build.</h2>
+      {faqs.map(([question, answer]) => <details className="comparison" key={question}><summary>{question}<Plus size={19}/></summary><p>{answer}</p></details>)}
+      <Link className="button" href="/quote?package=unsure">Help me choose <ArrowUpRight size={18}/></Link>
+    </section>
+    </>
   );
 }

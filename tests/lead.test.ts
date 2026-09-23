@@ -1,6 +1,7 @@
 import { strict as assert } from "node:assert";
 import { emptyLead, parseLead } from "../lib/lead";
 import { emailContent } from "../lib/lead-email";
+import { enquiryDraft } from "../lib/enquiry-draft";
 import handler from "../pages/api/quote";
 import type { NextApiRequest, NextApiResponse } from "next";
 const valid = {
@@ -19,6 +20,16 @@ function test(name: string, fn: () => void) {
   results.push(name);
 }
 test("accepts a complete enquiry", () => assert.ok(parseLead(valid).lead));
+test("email fallback preserves business details and selected annual plan", () => {
+  const draft = enquiryDraft({ ...valid, package: "growth", care: "priority", billing: "yearly", notes: "A&B + café\nSecond line" });
+  const url = new URL(draft.href);
+  assert.equal(url.pathname, "apexweb.au@gmail.com");
+  assert.equal(url.searchParams.get("body"), draft.body);
+  assert.ok(draft.body.includes("Growth Site"));
+  assert.ok(draft.body.includes("Growth care"));
+  assert.ok(draft.body.includes("Billing: yearly"));
+  assert.ok(draft.body.includes("A&B + café\nSecond line"));
+});
 test("rejects missing required fields", () =>
   assert.ok(
     parseLead({ ...valid, business: "", name: "", email: "bad" }).errors.email,
@@ -129,6 +140,17 @@ async function call(
     assert.equal((await call(valid)).status, 503);
     results.push("stored lead never reports success when email is not configured");
     process.env.RESEND_API_KEY = "qa-resend";
+    let rejectedEmailCalls = 0;
+    globalThis.fetch = async (input) => {
+      if (String(input).includes("api.resend.com")) {
+        rejectedEmailCalls++;
+        return new Response("{}", { status: 403 });
+      }
+      return new Response("{}", { status: 200 });
+    };
+    assert.equal((await call(valid)).status, 503);
+    assert.equal(rejectedEmailCalls, 1);
+    results.push("provider rejection returns failure and never sends customer confirmation");
     let emailCalls = 0;
     globalThis.fetch = async (input) => {
       const url = String(input);
