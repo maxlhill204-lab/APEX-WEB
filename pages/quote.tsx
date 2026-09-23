@@ -46,17 +46,16 @@ export default function Quote(props: Props) {
         description="Shape your custom website with APEXWEB. Explore the right package, choose your features and request a clear, no-obligation quote."
       />
       <section
-        className={`quote-page quote-cinematic quote-level-${Math.max(index, 0)}`}
+        className={`quote-page quote-cinematic quote-level-${Math.max(index, 0)} ${step === 0 ? "quote-choose" : ""}`}
       >
         <div className="quote-ambient" aria-hidden="true" />
         <div className="container quote-layout">
           <aside className="quote-intro">
             <span className="eyebrow">LET’S MAKE SOMETHING THAT’S YOURS</span>
             <h1>
-              Your next
-              <br />
-              <span>chapter.</span>
+              {step === 0 ? <>A website that fits.<br /><span>A price that makes sense.</span></> : <>Your next<br /><span>chapter.</span></>}
             </h1>
+            {step === 0 && <p className="quote-choose-description">Compare what you get, choose a starting point, and tell us about your business. We’ll agree the full scope and final price with you. No payment today.</p>}
             <div className="quote-orbit">
               <PackageAtom level={visual} compact />
             </div>

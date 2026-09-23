@@ -35,11 +35,11 @@ The home page embeds the same five-step wizard. `/quote?package=business&source=
 
 The existing Firebase rules permit a restricted, create-only document schema. The integration deliberately retains the seven existing fields: name, business, email, phone, message, source and createdAt. The complete quote appears as a readable summary and a structured JSON record within `message`. This preserves all the new fields without loosening database access. Enquiries are available in the existing Firebase Console under **Firestore Database → Data → enquiries**. A retry targets the same document ID.
 
-The API reports success only when Firebase has accepted the enquiry or the business notification email has been accepted by the provider. It does not claim an email was sent when email is not configured. No confirmation is sent to a customer unless the business notification was accepted first.
+The API reports success only when the business notification email has been accepted by the provider. A Firestore backup alone is not reported as successful delivery. No confirmation is sent to a customer unless the business notification was accepted first.
 
-## Email activation — remaining configuration
+## Email configuration
 
-The server-side Resend integration and HTML/plain-text email templates are implemented. **RESEND_API_KEY is absent from the Vercel project as of the September 23 launch check.** Set it as a sensitive server environment variable for Production and Preview. Verify `apexweb.au` in Resend and set `EMAIL_FROM=APEXWEB <enquiries@apexweb.au>` after verification. The code's onboarding sender is for Resend testing only and cannot be relied on for arbitrary customer confirmations. Redeploy, submit a real test to `apexweb.au@gmail.com`, and confirm receipt in the mailbox. API acceptance and actual inbox delivery are separate checks. Failed submissions preserve answers and offer a prefilled email and downloadable brief; this is a fallback, not certified automatic delivery.
+Resend's free Marketplace resource `apexweb-email` is connected to this project. `RESEND_API_KEY` is provisioned for Production, Preview and Development. `EMAIL_FROM=APEXWEB <enquiries@apexweb.au>` is configured for Production and Preview. The sender domain exists in Resend and verification has been initiated. Its DKIM, send-subdomain MX and SPF records are prepared in Vercel DNS, but Crazy Domains remains authoritative until its DNS is updated. Verification and a real test to `apexweb.au@gmail.com` are still required. API acceptance and actual inbox delivery are separate checks. Failed submissions preserve answers and offer a prefilled email and downloadable brief.
 
 Email requests use Resend idempotency keys, escaped HTML, plain-text alternatives, request timeouts, and Reply-To addresses. Secret API keys never enter client bundles.
 
@@ -63,4 +63,4 @@ Privacy wording is a concise description of the implemented data flow, not a pro
 
 `node tests/cinema-qa.cjs` checks 65 timeline frames across 320, 390, 768, 1440 and 1920 px, heading bounds, page overflow, keyboard rotation, the direct enquiry CTA, texture loading and reduced-motion accessibility. Set `BASE_URL` and `QA_OUTPUT_DIR` to test a production deployment. `tests/browser-qa.cjs` additionally covers nine responsive widths and the complete quote flow with mocked network outcomes. These tests do not prove email delivery.
 
-The real Firebase enquiry path was verified before this visual revision and remains unchanged. Resend credentials and the custom domain DNS remain external configuration items; do not claim they are complete.
+The real Firebase enquiry path was verified and remains unchanged. Resend credentials are now installed. Custom-domain DNS and sender verification require the authoritative DNS records to be updated; do not claim inbox delivery until tested.

@@ -356,29 +356,33 @@ export function QuoteWizard({
         <legend className="sr-only">{steps[step]}</legend>
         {step === 0 && (
           <>
-            <div className="choice-list">
+            <div className="quote-package-grid">
               {packages.map((p) => (
-                <label className="choice" key={p.id}>
+                <label className={`choice quote-package-card ${p.recommended ? "quote-package-recommended" : ""}`} key={p.id}>
                   <input
                     type="radio"
                     name="package"
                     value={p.id}
+                    aria-label={`${p.name}, from $${p.price}, ${p.pages}`}
                     checked={lead.package === p.id}
                     onChange={() => {
                       update("package", p.id);
                       track("package_selected", { package: p.id });
                     }}
                   />
+                  <span className="quote-package-kicker">{p.recommended ? `MOST COMPLETE · +$${packages[2].price - packages[1].price} FROM BUSINESS` : p.id === "starter" ? "THE ESSENTIALS" : "MORE ROOM TO GROW"}</span>
                   <span className="choice-text">
                     <strong>{p.name}</strong>
-                    <small>
-                      {p.pages}
-                      {p.recommended ? " · Best value for connected sites" : ""}
-                    </small>
+                    <small>{p.description}</small>
                   </span>
-                  <span className="choice-price">From ${p.price}</span>
+                  <span className="quote-build-price"><small>From</small> ${p.price}<small>AUD · one-off website build</small></span>
+                  <span className="quote-page-count">{p.pages}</span>
+                  <span className="quote-card-features">{p.features.map(feature => <span key={feature}><Check size={15} aria-hidden="true" />{feature}</span>)}</span>
+                  <span className="quote-card-select">{lead.package === p.id ? <><Check size={16} /> Selected</> : <>Select {p.name}<ArrowRight size={16} /></>}</span>
                 </label>
               ))}
+            </div>
+            <div className="quote-other-options">
               {[
                 [
                   "custom",
@@ -406,15 +410,11 @@ export function QuoteWizard({
                 </label>
               ))}
             </div>
-            {selected && <div className="quote-inclusions">
-              <strong>Included in {selected.name}</strong>
-              <ul>{selected.features.map(feature => <li key={feature}>{feature}</li>)}</ul>
-              <Link href="/services" target="_blank">Compare packages (opens a new tab) ↗</Link>
-            </div>}
-            <p className="fine-print">
-              AUD, one-time build. Final scope and price confirmed in your
-              quote. Hosting and external services are separate.
-            </p>
+            <div className="quote-build-details">
+              <div><span className="eyebrow">IN EVERY WEBSITE</span><h3>The foundations are included.</h3><p>Custom design around your brand, phone and desktop layouts, an enquiry form, basic search-engine setup, domain connection, launch checks, a review before publishing and handover of your site and accounts.</p></div>
+              <div><span className="eyebrow">NO SURPRISE COMMITMENT</span><h3>Build once. Care is optional.</h3><p>These are starting prices for the website build. Hosting and care are a separate choice, from ${(carePlans[0].annual / 12).toFixed(2)}/month when paid annually (${carePlans[0].annual}/year), or ${carePlans[0].price} paid monthly. Domains, paid tools and transaction fees are separate.</p></div>
+            </div>
+            <details className="comparison quote-scope-details"><summary>What do the integrations and final quote cover?<span aria-hidden="true">+</span></summary><p>Business includes one agreed booking link, Stripe payment flow or enquiry workflow. Growth adds one scoped 3D/scroll experience, a connected Stripe and database workflow, and an email/newsletter connection. Full online stores, custom applications and extra workflows need their own scope. Your written quote confirms the pages, content, integrations, review rounds, timing and final price before work begins.</p><Link href="/services" target="_blank">Full package and care comparison (opens a new tab) ↗</Link></details>
           </>
         )}
         {step === 1 && (
