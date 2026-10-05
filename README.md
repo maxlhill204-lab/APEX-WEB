@@ -39,7 +39,7 @@ The API reports success only when the business notification email has been accep
 
 ## Email configuration
 
-Resend's Marketplace resource `apexweb-email` is connected to this project. `RESEND_API_KEY` is provisioned for Production, Preview and Development. `EMAIL_FROM=APEXWEB <enquiries@apexweb.au>` is configured for Production and Preview. On 6 October 2026, Resend reported `apexweb.au` verified. One owner-authorised live QA enquiry (`AW-d9d35042da5486801020b9c5`) was stored in Firestore, and both business/customer emails were accepted. Resend separately reported the business notification delivered; inbox-folder placement is not established. Failed submissions preserve answers and offer a prefilled email and downloadable brief.
+Resend's Marketplace resource `apexweb-email` is connected to this project. `RESEND_API_KEY` is provisioned for Production, Preview and Development. `EMAIL_FROM=APEXWEB <enquiries@apexweb.au>` is configured for Production and Preview. On 6 October 2026, Resend reported `apexweb.au` verified. One owner-authorised live QA enquiry (`AW-d9d35042da5486801020b9c5`) was stored in Firestore. Both business/customer emails were accepted and independently reported delivered by Resend; inbox-folder placement is not established. Failed submissions preserve answers and offer a prefilled email and downloadable brief.
 
 Email requests use Resend idempotency keys, escaped HTML, plain-text alternatives, request timeouts, and Reply-To addresses. Secret API keys never enter client bundles.
 

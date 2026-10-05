@@ -22,6 +22,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <main id="main">{children}</main>
       {router.pathname !== "/" && <Footer />}
       {router.pathname === "/" && (
+        <nav aria-label="Start your enquiry">
         <Link
           className="cinema-cta"
           style={router.pathname === "/" && !cinemaVisible ? { display: "none" } : undefined}
@@ -37,6 +38,7 @@ export function Layout({ children }: { children: ReactNode }) {
         >
           Start a conversation <span aria-hidden="true">↗</span>
         </Link>
+        </nav>
       )}
     </>
   );
