@@ -4,7 +4,8 @@ import { parseLead } from "@/lib/lead";
 import { sendLeadEmails, emailContent } from "@/lib/lead-email";
 import { site } from "@/site.config";
 export const config = {
-  api: { bodyParser: { sizeLimit: "24kb" } },
+  // Allow the existing field limits even when customers enter multibyte text.
+  api: { bodyParser: { sizeLimit: "64kb" } },
   maxDuration: 30,
 };
 const requests = new Map<string, { count: number; reset: number }>();

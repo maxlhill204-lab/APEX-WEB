@@ -2,6 +2,7 @@ import { strict as assert } from "node:assert";
 import { emptyLead, parseLead } from "../lib/lead";
 import { emailContent } from "../lib/lead-email";
 import { enquiryDraft } from "../lib/enquiry-draft";
+import { readQuoteResponse, quoteErrorMessage, quoteFailureMessage } from "../lib/quote-response";
 import handler from "../pages/api/quote";
 import type { NextApiRequest, NextApiResponse } from "next";
 const valid = {
@@ -45,6 +46,15 @@ test("rejects unlisted packages and options", () =>
   ));
 test("requires phone when requested", () =>
   assert.ok(parseLead({ ...valid, contact: "Phone", phone: "" }).errors.phone));
+test("rejects punctuation-only and too-short phone numbers", () => {
+  for (const phone of ["-------", "( ) ...", "123456", "1234567890123456"])
+    assert.ok(parseLead({ ...valid, contact: "Phone", phone }).errors.phone);
+  assert.ok(parseLead({ ...valid, contact: "Phone", phone: "+61 412 345 678" }).lead);
+});
+test("network failures give useful recovery instructions", () => {
+  assert.equal(quoteErrorMessage(new TypeError("Failed to fetch")), quoteFailureMessage);
+  assert.match(quoteErrorMessage(new DOMException("timeout", "TimeoutError")), /without creating a duplicate/);
+});
 test("requires explicit contact consent", () =>
   assert.ok(parseLead({ ...valid, consent: false }).errors.consent));
 test("bounds oversized content", () =>
@@ -112,6 +122,11 @@ async function call(
   return { status, result };
 }
 (async () => {
+  await assert.rejects(readQuoteResponse(new Response("Bad Gateway", { status: 502 })), { message: quoteFailureMessage });
+  await assert.rejects(readQuoteResponse(new Response("null")), { message: quoteFailureMessage });
+  await assert.rejects(readQuoteResponse(new Response('{"ok":true}')), { message: quoteFailureMessage });
+  assert.equal((await readQuoteResponse(new Response('{"ok":true,"reference":"AW-QA"}'))).reference, "AW-QA");
+  results.push("non-JSON failures and malformed success responses never report receipt");
   const original = globalThis.fetch;
   const old = {
     project: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,

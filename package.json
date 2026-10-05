@@ -8,16 +8,16 @@
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "test": "tsx tests/lead.test.ts",
+    "test": "tsx tests/lead.test.ts && tsx tests/billing.test.ts",
     "test:browser": "node tests/browser-qa.cjs"
   },
   "dependencies": {
-    "firebase": "^12.15.0",
     "framer-motion": "latest",
     "lucide-react": "latest",
-    "next": "^16.3.4",
+    "next": "^16.3.8",
     "react": "latest",
     "react-dom": "latest",
+    "stripe": "^23.0.0",
     "three": "^0.186.0"
   },
   "devDependencies": {
@@ -30,7 +30,7 @@
     "@types/three": "^0.185.4",
     "autoprefixer": "latest",
     "eslint": "latest",
-    "eslint-config-next": "^16.3.4",
+    "eslint-config-next": "^16.3.8",
     "postcss": "^8.5.28",
     "tailwindcss": "latest",
     "tsx": "^4.23.13",

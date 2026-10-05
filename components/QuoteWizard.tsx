@@ -17,6 +17,7 @@ import {
 } from "@/lib/lead";
 import { track } from "@/lib/analytics";
 import { enquiryDraft } from "@/lib/enquiry-draft";
+import { readQuoteResponse, quoteErrorMessage, quoteFailureMessage } from "@/lib/quote-response";
 const steps = [
   "Your package",
   "Your business",
@@ -77,7 +78,7 @@ export function QuoteWizard({
     onStepChange?.(step);
   }, [step, onStepChange]);
   function update<K extends keyof Lead>(key: K, value: Lead[K]) {
-    setLead((l) => ({ ...l, [key]: value }));
+    setLead((l) => ({ ...l, [key]: value, ...(key === "care" && value === "none" ? { billing: "unsure" } : {}) }));
     setErrors((e) => ({ ...e, [key]: "" }));
     identity.current = { requestId: "", submittedAt: "" };
   }
@@ -137,28 +138,21 @@ export function QuoteWizard({
         body: JSON.stringify(payload),
         signal: AbortSignal.timeout(25000),
       });
-      const result = await response.json();
+      const result = await readQuoteResponse(response);
       if (!response.ok || !result.ok) {
         if (result.errors) setErrors(result.errors);
         throw new Error(
-          result.message ||
-            "We couldn’t send your enquiry just now. Your answers are still here. Please try again, or email us.",
+          result.message || quoteFailureMessage,
         );
       }
-      setReference(result.reference);
+      setReference(result.reference!);
       setConfirmation(result.confirmationSent === true);
       setStatus("success");
       track("quote_completed", { package: lead.package });
       setTimeout(() => heading.current?.focus(), 0);
     } catch (error) {
       setStatus("error");
-      setMessage(
-        error instanceof Error && error.name === "TimeoutError"
-          ? "The connection took too long. Your answers are safe here. Retry to check your request without creating a duplicate."
-          : error instanceof Error
-            ? error.message
-            : "Your enquiry could not be sent. Please try again.",
-      );
+      setMessage(quoteErrorMessage(error));
     } finally {
       lock.current = false;
     }
@@ -496,7 +490,7 @@ export function QuoteWizard({
                 label: `${p.name} — $${p.price}/month or $${p.annual}/year`,
               })),
             ])}
-            {select("billing", "Preferred hosting billing", [
+            {lead.care !== "none" && select("billing", "Preferred hosting billing", [
               { value: "unsure", label: "Discuss this with me" },
               { value: "monthly", label: "Monthly" },
               { value: "yearly", label: "Yearly — save 25%" },
