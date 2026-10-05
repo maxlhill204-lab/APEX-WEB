@@ -106,7 +106,7 @@ export function validateStep(lead: Lead, step: number): Record<string, string> {
     if (!lead.name.trim()) e.name = "Enter your name.";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lead.email))
       e.email = "Enter a valid email address, such as you@business.com.";
-    if (lead.phone && !/^[+()\d\s.-]{7,25}$/.test(lead.phone))
+    if (lead.phone && (!/^[+()\d\s.-]{7,25}$/.test(lead.phone) || !/^\d{7,15}$/.test(lead.phone.replace(/\D/g, ""))))
       e.phone = "Enter a valid phone number.";
     if (lead.contact === "Phone" && !lead.phone.trim())
       e.phone = "Add a phone number or choose email as your preference.";

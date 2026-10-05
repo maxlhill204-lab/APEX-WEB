@@ -36,6 +36,13 @@ export default function Privacy() {
         </p>
         <h2>Website and campaign information</h2>
         <p>
+          If you agree to a paid project or care plan, Stripe processes payments
+          on its hosted payment pages. Stripe handles your card details; we
+          receive billing records and payment or subscription status needed to
+          administer your service. Payment details are not entered into the
+          enquiry form.
+        </p>
+        <p>
           Your enquiry may include the campaign source or referring website that
           brought you here. We use this to understand which enquiries come from
           which campaigns. We do not add advertising trackers or collect payment

@@ -37,7 +37,7 @@ export function Packages() {
                 </span>
               )}
             </div>
-            <h3>{p.name}</h3>
+            <h2>{p.name}</h2>
             <p>{p.description}</p>
             <div className="price">
               <span>From</span> ${p.price}
