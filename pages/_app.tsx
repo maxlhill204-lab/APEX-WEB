@@ -2,6 +2,7 @@ import type { AppProps } from "next/app";
 import { Inter } from "next/font/google";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
+import { Analytics } from "@vercel/analytics/next";
 import { Layout } from "@/components/Layout";
 import "@/styles/globals.css";
 const inter = Inter({ subsets: ["latin"], display: "optional" });
@@ -25,6 +26,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <Layout>
         <Component {...pageProps} />
       </Layout>
+      <Analytics />
     </div>
   );
 }
