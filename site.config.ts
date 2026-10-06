@@ -5,9 +5,8 @@ export const site = {
   instagram: "https://www.instagram.com/apexweb.au/",
   facebook: "https://www.facebook.com/profile.php?id=61591306250659",
   currency: "AUD",
-  // This must be a sender verified in Resend. Until apexweb.au is verified,
-  // use the Resend onboarding sender via the EMAIL_FROM environment variable.
-  emailFrom: "APEXWEB <onboarding@resend.dev>",
+  // apexweb.au is verified in Resend; EMAIL_FROM can override this sender.
+  emailFrom: "APEXWEB <enquiries@apexweb.au>",
 };
 export const packages = [
   {
