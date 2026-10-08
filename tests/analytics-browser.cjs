@@ -16,12 +16,14 @@ const baseURL = process.env.BASE_URL || "http://localhost:3017";
     const owner = await browser.newContext(contextOptions);
     await owner.addInitScript(() => Object.defineProperty(navigator, "webdriver", { get: () => false }));
     const sent = [];
-    await owner.route("**/_vercel/insights/**", async (route) => {
-      if (route.request().url().includes("/script.js")) {
+    await owner.route("**/*", async (route) => {
+      if (new URL(route.request().url()).pathname.endsWith("/script.js")) {
         await route.fulfill({ contentType: "application/javascript", body: script });
-      } else {
+      } else if (route.request().method() === "POST") {
         sent.push(route.request().url());
         await route.fulfill({ status: 200, body: "{}" });
+      } else {
+        await route.continue();
       }
     });
     const page = await owner.newPage();
@@ -52,12 +54,14 @@ const baseURL = process.env.BASE_URL || "http://localhost:3017";
     const visitor = await browser.newContext(contextOptions);
     await visitor.addInitScript(() => Object.defineProperty(navigator, "webdriver", { get: () => false }));
     const visitorSent = [];
-    await visitor.route("**/_vercel/insights/**", async (route) => {
-      if (route.request().url().includes("/script.js")) {
+    await visitor.route("**/*", async (route) => {
+      if (new URL(route.request().url()).pathname.endsWith("/script.js")) {
         await route.fulfill({ contentType: "application/javascript", body: script });
-      } else {
+      } else if (route.request().method() === "POST") {
         visitorSent.push(route.request().url());
         await route.fulfill({ status: 200, body: "{}" });
+      } else {
+        await route.continue();
       }
     });
     const visitorPage = await visitor.newPage();
