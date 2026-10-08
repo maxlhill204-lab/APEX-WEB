@@ -47,7 +47,9 @@ Email requests use Resend idempotency keys, escaped HTML, plain-text alternative
 
 ## Analytics and future lead acquisition
 
-The site emits `apexweb:analytics` CustomEvents for quote clicks, package selection, quote starts/completions, email and Instagram clicks. No external analytics provider is enabled. Integrate an approved first-party adapter with this event if needed. Campaign source/UTM values are held in session storage and added to the enquiry. There is no outbound sending or prospect scraping system. `Lead` provides a typed boundary for a future CRM or campaign workflow.
+Vercel Web Analytics records page views. The site also emits `apexweb:analytics` CustomEvents for quote clicks, package selection, quote starts/completions, email and Instagram clicks. Campaign source/UTM values are held in session storage and added to the enquiry. There is no outbound sending or prospect scraping system. `Lead` provides a typed boundary for a future CRM or campaign workflow.
+
+To exclude owner visits, open `https://apexweb.au/analytics-preferences` once per browser/device. This saves a versioned local-storage preference and Vercel's `beforeSend` filter drops all subsequent page views/custom events for that browser. The preference page itself is never counted, including its first load, and local CustomEvents respect the same exclusion. Clearing site data or opening a new private session requires opting out again. Existing totals cannot be corrected by this filter. The page reports blocked storage honestly and offers an opt-in button. It is unlinked from public navigation and marked `noindex, nofollow`. Run `node tests/analytics-browser.cjs` against a production build on port 3017 (or set `BASE_URL`); it uses Vercel's actual intake script and intercepts analytics requests so QA traffic is not sent.
 
 ## Deployment
 
