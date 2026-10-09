@@ -4,7 +4,6 @@ import { ArrowUpRight, Menu, X } from "lucide-react";
 import { track } from "@/lib/analytics";
 const links = [
   ["Services", "/services"],
-  ["Design collection", "/templates"],
   ["Packages", "/#packages"],
   ["Contact", "/contact"],
 ];
