@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { filterAnalyticsEvent } from "@/lib/analytics-preferences";
 import { Layout } from "@/components/Layout";
 import "@/styles/globals.css";
+import "@/styles/templates.css";
 const inter = Inter({ subsets: ["latin"], display: "optional" });
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();

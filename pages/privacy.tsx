@@ -36,6 +36,12 @@ export default function Privacy() {
         </p>
         <h2>Website and campaign information</h2>
         <p>
+          We use Vercel Web Analytics to understand page visits and interactions.
+          It uses a privacy-focused, cookie-free measurement system rather than advertising cookies.
+          You can exclude this browser using our <Link href="/analytics-preferences">analytics preferences</Link>.
+          We filter query strings from analytics URLs and do not include your enquiry answers in analytics events.
+        </p>
+        <p>
           If you agree to a paid project or care plan, Stripe processes payments
           on its hosted payment pages. Stripe handles your card details; we
           receive billing records and payment or subscription status needed to

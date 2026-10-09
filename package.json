@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "test": "tsx tests/lead.test.ts && tsx tests/billing.test.ts",
+    "test": "tsx tests/lead.test.ts && tsx tests/billing.test.ts && tsx tests/security-release.test.ts",
     "test:browser": "node tests/browser-qa.cjs"
   },
   "dependencies": {

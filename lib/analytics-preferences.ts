@@ -1,4 +1,5 @@
 import type { BeforeSendEvent } from "@vercel/analytics/next";
+import { sanitiseAnalyticsUrl } from './analytics-sanitise';
 
 const STORAGE_KEY = "apexweb:exclude-analytics:v1";
 
@@ -35,5 +36,5 @@ export function isAnalyticsExcluded(): boolean {
 }
 
 export function filterAnalyticsEvent(event: BeforeSendEvent): BeforeSendEvent | null {
-  return isAnalyticsExcluded() ? null : event;
+  return isAnalyticsExcluded() ? null : { ...event, url: sanitiseAnalyticsUrl(event.url) };
 }

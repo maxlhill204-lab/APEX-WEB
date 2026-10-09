@@ -1,0 +1,13 @@
+import { useState } from 'react';
+import Link from 'next/link';
+import type { GetStaticPaths, GetStaticProps } from 'next';
+import { SEO } from '@/components/SEO';
+import { DesignCard } from '@/components/DesignCard';
+import { designs, designTiers } from '@/lib/design-catalogue';
+import type { DesignTier } from '@/lib/template-types';
+export default function Tier({ tier }: { tier: DesignTier }) {
+  const [search,setSearch]=useState(''); const choices=designs.filter(d=>d.tier===tier.slug); const shown=choices.filter(d=>`${d.title} ${d.summary} ${d.audience}`.toLowerCase().includes(search.toLowerCase().trim()));
+  return <><SEO title={`${tier.name} website themes — APEXWEB`} description={`Explore ten ${tier.name} website design directions. ${tier.description}`} /><div className="template-shell"><nav className="template-breadcrumb" aria-label="Breadcrumb"><Link href="/templates">All packages</Link><span aria-hidden="true">/</span><span>{tier.name}</span></nav><section className="template-tier-hero"><p className="eyebrow">COLLECTION 0{tier.number} / FROM ${tier.price} AUD</p><h1>{tier.name}<em>Ten ways to begin.</em></h1><p>{tier.description}</p><p className="tier-scope">{tier.scope} Final scope, provider costs and price are agreed before work starts.</p></section><nav className="template-tier-tabs" aria-label="Website tiers">{designTiers.map(t=><Link key={t.slug} href={`/templates/${t.slug}`} aria-current={t.slug===tier.slug?'page':undefined}>{t.name}<span>10</span></Link>)}</nav><div className="design-search"><label htmlFor="design-search">Find a direction</label><input id="design-search" type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search a style or business type" /><span role="status" aria-live="polite">{shown.length} of 10 directions</span></div><div className="design-grid">{shown.map(d=><DesignCard key={d.id} design={d}/>)}</div>{shown.length===0&&<div className="design-empty"><h2>No directions match that search.</h2><p>Try a broader style or business type.</p><button className="button button-outline" onClick={()=>setSearch('')}>Clear search</button></div>}<p className="template-footnote">Illustrative previews show visual direction, not completed client websites. Choose a direction to see its concept and live-demo status.</p></div></>;
+}
+export const getStaticPaths: GetStaticPaths = async () => ({paths:designTiers.map(t=>({params:{tier:t.slug}})),fallback:false});
+export const getStaticProps: GetStaticProps = async ({params}) => {const tier=designTiers.find(t=>t.slug===params?.tier); return tier?{props:{tier}}:{notFound:true};};

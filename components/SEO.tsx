@@ -4,9 +4,11 @@ import { site } from "@/site.config";
 export function SEO({
   title,
   description,
+  noindex = false,
 }: {
   title: string;
   description: string;
+  noindex?: boolean;
 }) {
   const { asPath } = useRouter();
   const canonical = site.url + asPath.split(/[?#]/)[0];
@@ -14,6 +16,7 @@ export function SEO({
     <Head>
       <title>{title}</title>
       <meta name="description" content={description} />
+      {noindex && <meta name="robots" content="noindex, follow" />}
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <link rel="canonical" href={canonical} />
       <meta property="og:title" content={title} />
@@ -23,6 +26,10 @@ export function SEO({
       <meta property="og:url" content={canonical} />
       <meta property="og:image" content={`${site.url}/social-card.png`} />
       <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={`${site.url}/social-card.png`} />
+      <meta property="og:locale" content="en_AU" />
       <meta name="theme-color" content="#0b0b0b" />
       <link rel="icon" href="/favicon.svg" />
     </Head>

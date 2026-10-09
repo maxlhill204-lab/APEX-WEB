@@ -22,17 +22,24 @@ export default async function handler(
   }
   const origin = req.headers.origin;
   const host = req.headers.host;
+  const allowedOrigins = new Set([
+    site.url,
+    "https://apexweb.au", "https://www.apexweb.au", "https://apexweb.com.au",
+    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
+    ...(process.env.VERCEL_BRANCH_URL ? [`https://${process.env.VERCEL_BRANCH_URL}`] : []),
+    ...(process.env.NODE_ENV === "development" ? [`http://${host}`] : []),
+  ]);
   if (
     origin &&
-    origin !== site.url &&
-    origin !== `https://${host}` &&
-    !(process.env.NODE_ENV === "development" && origin === `http://${host}`)
+    !allowedOrigins.has(origin)
   )
     return res
       .status(403)
       .json({
         message: "Please submit your enquiry from the APEXWEB website.",
       });
+  if (req.headers["sec-fetch-site"] === "cross-site")
+    return res.status(403).json({ message: "Please submit your enquiry from the APEXWEB website." });
   if (!req.headers["content-type"]?.includes("application/json"))
     return res
       .status(415)

@@ -6,6 +6,7 @@ export default function NotFound() {
       <SEO
         title="Page not found — APEXWEB"
         description="Find your way back to APEXWEB."
+        noindex
       />
       <section className="container prose-page">
         <p className="eyebrow">404 — A SMALL DETOUR</p>

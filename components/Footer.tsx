@@ -24,6 +24,8 @@ export function Footer() {
         <span>© {new Date().getFullYear()} APEXWEB</span>
         <div>
           <Link href="/#packages">Packages</Link>
+          <Link href="/templates">Design collection</Link>
+          <Link href="/terms">Website terms</Link>
           <Link href="/contact">Contact</Link>
           <Link href="/privacy">Privacy</Link>
           <Link href="/credits">Visual credits</Link>

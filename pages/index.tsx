@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <>
       <SEO
-        title="APEXWEB — Custom websites. Out of this world."
+        title="Custom website design for Australian businesses — APEXWEB"
         description="Custom website design from $300 AUD. Choose a simple site, interactive business website or cinematic 3D experience. Optional monthly or annual hosting."
       />
       <script
@@ -14,7 +14,8 @@ export default function Home() {
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "ProfessionalService",
+            "@type": "Organization",
+            "@id": `${site.url}/#organisation`,
             name: site.name,
             url: site.url,
             email: site.email,

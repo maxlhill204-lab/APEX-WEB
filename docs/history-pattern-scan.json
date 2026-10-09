@@ -1,0 +1,11 @@
+{
+  "checked": "All fetched Git history patches; bounded known credential patterns",
+  "counts": {
+    "private_key": 0,
+    "stripe_secret": 0,
+    "resend_secret": 0,
+    "aws_access": 0,
+    "github_token": 0
+  },
+  "limit": "Pattern scan does not prove absence of every possible credential format."
+}
